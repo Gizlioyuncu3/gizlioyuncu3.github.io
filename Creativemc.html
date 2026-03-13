@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Creative Minecraft - Stabil Sürüm</title>
+    <style>
+        body { margin: 0; overflow: hidden; font-family: 'Inter', sans-serif; user-select: none; background-color: #000; }
+        
+        #crosshair {
+            position: absolute; top: 50%; left: 50%; width: 20px; height: 20px;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>');
+            transform: translate(-50%, -50%); z-index: 10; pointer-events: none; mix-blend-mode: difference;
+        }
+
+        #instructions {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at center, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.95) 100%);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            color: white; z-index: 30; cursor: pointer; text-align: center; backdrop-filter: blur(10px);
+        }
+
+        #ui-layer {
+            position: absolute; top: 30px; left: 30px; color: white;
+            pointer-events: none; background: rgba(0, 0, 0, 0.6); padding: 20px; border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1); z-index: 10; backdrop-filter: blur(10px);
+        }
+
+        #coords-display {
+            margin-top: 10px; font-family: 'monospace'; font-size: 14px; color: #00ff88;
+        }
+
+        #inventory-container {
+            position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%);
+            display: flex; background: rgba(15, 15, 15, 0.9); padding: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 24px; gap: 12px; z-index: 20;
+            backdrop-filter: blur(20px); box-shadow: 0 15px 45px rgba(0,0,0,0.7);
+        }
+
+        .inventory-slot {
+            width: 60px; height: 60px; border: 2px solid rgba(255, 255, 255, 0.1); background-color: rgba(255, 255, 255, 0.03);
+            background-size: 75%; background-position: center; background-repeat: no-repeat;
+            position: relative; cursor: pointer; border-radius: 14px;
+            transition: all 0.3s cubic-bezier(0.19, 1, 0.22, 1);
+        }
+
+        .inventory-slot.selected {
+            border-color: #00ff88; background-color: rgba(0, 255, 136, 0.1); 
+            transform: scale(1.2) translateY(-12px);
+            box-shadow: 0 10px 20px rgba(0, 255, 136, 0.3);
+        }
+
+        .slot-name {
+            position: absolute; bottom: 90px; left: 50%; transform: translateX(-50%);
+            background: #00ff88; color: #000; padding: 6px 18px; border-radius: 30px;
+            font-size: 14px; font-weight: 800; white-space: nowrap; display: none;
+            box-shadow: 0 5px 15px rgba(0, 255, 136, 0.4);
+        }
+        .inventory-slot.selected .slot-name { display: block; }
+
+        #mode-indicator {
+            position: absolute; top: 30px; right: 30px; background: rgba(0, 255, 136, 0.2);
+            color: #00ff88; padding: 10px 20px; border-radius: 15px; font-weight: 800;
+            border: 1px solid rgba(0, 255, 136, 0.3); backdrop-filter: blur(10px);
+        }
+
+        h1 { margin: 0; font-size: 64px; font-weight: 900; letter-spacing: -3px; }
+        h1 span { color: #00ff88; text-shadow: 0 0 30px rgba(0, 255, 136, 0.5); }
+    </style>
+</head>
+<body>
+
+    <div id="crosshair"></div>
+    <div id="mode-indicator">YÜRÜME MODU</div>
+    
+    <div id="ui-layer">
+        <div style="font-size: 24px; font-weight: 900;">CREATIVE <span style="color:#00ff88">MINECRAFT</span></div>
+        <div style="opacity: 0.5; font-size: 11px; margin-top: 2px; letter-spacing: 2px; text-transform: uppercase;">Stable Build V4.4 (Flight Fix)</div>
+        <div id="coords-display">X: 0 | Y: 0 | Z: 0</div>
+        <div style="margin-top: 15px; font-size: 13px; font-weight: 600;">Aktif Chunk: <span id="chunk-info" style="color:#00ff88">0</span></div>
+        <div style="font-size: 13px; font-weight: 600;">Blok Sayısı: <span id="block-count" style="color:#00ff88">0</span></div>
+    </div>
+
+    <div id="inventory-container"></div>
+
+    <div id="instructions">
+        <h1>CREATIVE <span>MC</span></h1>
+        <p style="font-size: 18px; opacity: 0.7;">Sonsuz Dünya, Dağlar ve Gelişmiş Uçuş</p>
+        <div style="margin-top: 40px; background: rgba(255,255,255,0.05); padding: 25px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1);">
+            <p style="font-weight: 800; font-size: 22px; margin-bottom: 20px;">BAŞLAMAK İÇİN TIKLA</p>
+            <div style="font-size: 14px; color: rgba(255,255,255,0.5); display: grid; grid-template-columns: 1fr 1fr; gap: 10px; text-align: left;">
+                <div><kbd style="background:#333; padding: 3px 8px; border-radius: 4px; color: #fff;">W,A,S,D</kbd> Hareket</div>
+                <div><kbd style="background:#333; padding: 3px 8px; border-radius: 4px; color: #fff;">BOŞLUK</kbd> Zıpla / Yüksel</div>
+                <div><kbd style="background:#333; padding: 3px 8px; border-radius: 4px; color: #fff;">2x BOŞLUK</kbd> Uçma Modu</div>
+                <div><kbd style="background:#333; padding: 3px 8px; border-radius: 4px; color: #fff;">SHIFT</kbd> Alçal</div>
+                <div><kbd style="background:#333; padding: 3px 8px; border-radius: 4px; color: #fff;">Scroll</kbd> Blok Seçimi</div>
+            </div>
+        </div>
+    </div>
+
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.module.js",
+                "three/examples/jsm/controls/PointerLockControls": "https://cdn.jsdelivr.net/npm/three@0.128.0/examples/jsm/controls/PointerLockControls.js"
+            }
+        }
+    </script>
+
+    <script type="module">
+        import * as THREE from 'three';
+        import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockControls';
+
+        // --- GLOBAL DEĞİŞKENLER ---
+        const BLOCK_SIZE = 7.5; 
+        
+        // Chunk Ayarları
+        const CHUNK_SIZE = 8; 
+        const RENDER_DISTANCE = 2; // 5x5 Alan
+        const chunks = {}; 
+        
+        let camera, scene, renderer, controls, raycaster;
+        let moveForward = false, moveBackward = false, moveLeft = false, moveRight = false, canJump = false;
+        let moveUp = false, moveDown = false;
+        let isFlying = false;
+        let lastSpacePressTime = 0;
+        const DOUBLE_PRESS_DELAY = 300; 
+
+        let isPlacing = false, isBreaking = false;
+        let lastActionTime = 0;
+        const ACTION_COOLDOWN = 150; 
+
+        let prevTime = performance.now();
+        const velocity = new THREE.Vector3();
+        const direction = new THREE.Vector3();
+        
+        const objects = []; 
+        let selectedSlotIndex = 0; 
+        let rolloverMesh; 
+        
+        const materials = [];
+        const blockTypes = [
+            { name: 'Canlı Çimen', type: 'grass', color: '#4a852c', sideColor: '#5c4433' },
+            { name: 'Koyu Toprak', type: 'dirt', color: '#4d3929' },
+            { name: 'Granit Kaya', type: 'stone', color: '#7a7a7a' },
+            { name: 'Meşe Odunu', type: 'wood', color: '#4d3319', topColor: '#8a6b4d' },
+            { name: 'Sık Yaprak', type: 'leaves', color: '#244d1f', opacity: 0.95 },
+            { name: 'Altın Kum', type: 'sand', color: '#d9b671' },
+            { name: 'Saf Kar', type: 'snow', color: '#ffffff' },
+            { name: 'Pişmiş Tuğla', type: 'brick', color: '#8c352a' },
+            { name: 'Camsı Cam', type: 'glass', color: '#aaddff', opacity: 0.3 }
+        ];
+
+        init();
+        animate();
+
+        function getNoiseHeight(x, z) {
+            const scale1 = 0.03;
+            const scale2 = 0.1;
+            let h = Math.sin(x * scale1) * Math.cos(z * scale1) * 20; 
+            h += Math.sin(x * scale2 + z * scale2) * 5; 
+            return Math.floor(h);
+        }
+
+        function generateTexture(color, type, side = 'main') {
+            const size = 64; 
+            const canvas = document.createElement('canvas');
+            canvas.width = size; canvas.height = size;
+            const ctx = canvas.getContext('2d');
+            
+            ctx.fillStyle = color;
+            ctx.fillRect(0, 0, size, size);
+
+            if (type === 'brick') {
+                ctx.fillStyle = '#6e2b22';
+                ctx.fillRect(0, 0, size, size);
+                ctx.fillStyle = color;
+                const rows = 4;
+                const cols = 2;
+                const h = size / rows;
+                const w = size / cols;
+                for (let r = 0; r < rows; r++) {
+                    const offset = (r % 2 === 0) ? 0 : w / 2;
+                    for (let c = -1; c < cols + 1; c++) {
+                        const v = (Math.random() - 0.5) * 15;
+                        ctx.fillStyle = `rgb(${140+v}, ${53+v}, ${42+v})`;
+                        ctx.fillRect(c * w + offset + 1, r * h + 1, w - 2, h - 2);
+                    }
+                }
+            } else {
+                for(let i = 0; i < 500; i++) {
+                    ctx.fillStyle = Math.random() > 0.5 ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.04)';
+                    ctx.fillRect(Math.random()*size, Math.random()*size, 1, 1);
+                }
+            }
+
+            const grd = ctx.createRadialGradient(size/2, size/2, size/4, size/2, size/2, size*0.7);
+            grd.addColorStop(0, 'rgba(0,0,0,0)');
+            grd.addColorStop(1, 'rgba(0,0,0,0.2)');
+            ctx.fillStyle = grd;
+            ctx.fillRect(0, 0, size, size);
+
+            const texture = new THREE.CanvasTexture(canvas);
+            texture.magFilter = THREE.NearestFilter; 
+            return texture;
+        }
+
+        function init() {
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x6eb1ff);
+            
+            // --- SİS AYARI GÜNCELLENDİ ---
+            // Sisin yoğunluğu düşürüldü (0.007 -> 0.003), böylece görüş mesafesi arttı.
+            scene.fog = new THREE.FogExp2(0x6eb1ff, 0.003); 
+
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1500);
+            
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
+            scene.add(ambientLight);
+
+            const sunLight = new THREE.DirectionalLight(0xffffff, 0.6);
+            sunLight.position.set(100, 200, 100);
+            scene.add(sunLight);
+
+            const hotbar = document.getElementById('inventory-container');
+            blockTypes.forEach((block, index) => {
+                let mat;
+                if (block.type === 'grass') {
+                    const side = new THREE.MeshLambertMaterial({ map: generateTexture(block.sideColor, 'grass', 'side') });
+                    const top = new THREE.MeshLambertMaterial({ map: generateTexture(block.color, 'grass', 'top') });
+                    const bot = new THREE.MeshLambertMaterial({ map: generateTexture(block.sideColor, 'grass', 'bot') });
+                    mat = [side, side, top, bot, side, side];
+                } else if (block.type === 'wood') {
+                    const side = new THREE.MeshLambertMaterial({ map: generateTexture(block.color, 'wood', 'side') });
+                    const top = new THREE.MeshLambertMaterial({ map: generateTexture(block.topColor, 'wood', 'top') });
+                    mat = [side, side, top, top, side, side];
+                } else {
+                    const tex = generateTexture(block.color, block.type);
+                    mat = new THREE.MeshLambertMaterial({ 
+                        map: tex, 
+                        transparent: !!block.opacity, 
+                        opacity: block.opacity || 1
+                    });
+                }
+                materials.push(mat);
+
+                const slot = document.createElement('div');
+                slot.className = index === 0 ? 'inventory-slot selected' : 'inventory-slot';
+                let iconUrl = Array.isArray(mat) ? mat[2].map.image.toDataURL() : mat.map.image.toDataURL();
+                slot.style.backgroundImage = `url(${iconUrl})`;
+                slot.innerHTML = `<div class="slot-name">${block.name}</div>`;
+                slot.onclick = () => selectSlot(index);
+                hotbar.appendChild(slot);
+            });
+
+            controls = new PointerLockControls(camera, document.body);
+            const instructions = document.getElementById('instructions');
+            instructions.addEventListener('click', () => controls.lock());
+            controls.addEventListener('lock', () => instructions.style.display = 'none');
+            controls.addEventListener('unlock', () => instructions.style.display = 'flex');
+            scene.add(controls.getObject());
+
+            rolloverMesh = new THREE.Mesh(
+                new THREE.BoxGeometry(BLOCK_SIZE * 1.01, BLOCK_SIZE * 1.01, BLOCK_SIZE * 1.01),
+                new THREE.MeshBasicMaterial({ color: 0x00ff88, wireframe: true, transparent: true, opacity: 0.3 })
+            );
+            scene.add(rolloverMesh);
+
+            // --- KEYBOARD EVENT FIX ---
+            document.addEventListener('keydown', (e) => {
+                // Repeat (basılı tutma) durumunu filtrele
+                if (e.repeat) {
+                    // Sadece uçuş sırasında yükselme/alçalma devam etsin
+                    if (isFlying) {
+                        if (e.code === 'Space') moveUp = true;
+                        if (e.code === 'ShiftLeft') moveDown = true;
+                    }
+                    return; // Diğer tekrarları engelle (Özellikle toggleFly)
+                }
+                onKey(e, true);
+            });
+            
+            document.addEventListener('keyup', (e) => onKey(e, false));
+
+            const onKey = (e, state) => {
+                switch (e.code) {
+                    case 'KeyW': moveForward = state; break;
+                    case 'KeyA': moveLeft = state; break;
+                    case 'KeyS': moveBackward = state; break;
+                    case 'KeyD': moveRight = state; break;
+                    case 'Space': 
+                        if (state) {
+                            const now = performance.now();
+                            if (now - lastSpacePressTime < DOUBLE_PRESS_DELAY) {
+                                toggleFly();
+                            }
+                            lastSpacePressTime = now;
+                        }
+                        if (isFlying) moveUp = state;
+                        else if (state && canJump) { 
+                            velocity.y += 105; 
+                            canJump = false; 
+                        } 
+                        break;
+                    case 'ShiftLeft': moveDown = state; break;
+                }
+                if (state && e.key >= '1' && e.key <= '9') selectSlot(parseInt(e.key) - 1);
+            };
+
+            document.addEventListener('wheel', (e) => {
+                if (!controls.isLocked) return;
+                let newIndex = selectedSlotIndex + (e.deltaY > 0 ? 1 : -1);
+                if (newIndex < 0) newIndex = blockTypes.length - 1;
+                if (newIndex >= blockTypes.length) newIndex = 0;
+                selectSlot(newIndex);
+            });
+
+            raycaster = new THREE.Raycaster();
+            document.addEventListener('mousedown', (e) => {
+                if (e.button === 0) isBreaking = true;
+                if (e.button === 2) isPlacing = true;
+            });
+            document.addEventListener('mouseup', (e) => {
+                if (e.button === 0) isBreaking = false;
+                if (e.button === 2) isPlacing = false;
+            });
+
+            renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
+            renderer.setPixelRatio(window.devicePixelRatio > 1 ? 1.5 : 1);
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            document.body.appendChild(renderer.domElement);
+            
+            window.addEventListener('resize', () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            });
+        }
+
+        function toggleFly() {
+            isFlying = !isFlying;
+            const indicator = document.getElementById('mode-indicator');
+            indicator.innerText = isFlying ? "UÇMA MODU" : "YÜRÜME MODU";
+            indicator.style.background = isFlying ? "rgba(0, 150, 255, 0.2)" : "rgba(0, 255, 136, 0.2)";
+            indicator.style.color = isFlying ? "#0096ff" : "#00ff88";
+            velocity.y = 0;
+        }
+
+        function getChunkKey(cx, cz) {
+            return `${cx}:${cz}`;
+        }
+
+        function generateChunk(cx, cz) {
+            const chunkKey = getChunkKey(cx, cz);
+            if (chunks[chunkKey]) return; 
+
+            const chunkMeshes = [];
+            
+            for (let x = 0; x < CHUNK_SIZE; x++) {
+                for (let z = 0; z < CHUNK_SIZE; z++) {
+                    const worldX = cx * CHUNK_SIZE + x;
+                    const worldZ = cz * CHUNK_SIZE + z;
+                    
+                    const h = getNoiseHeight(worldX, worldZ);
+                    const worldY = h * BLOCK_SIZE;
+                    
+                    let blockType = 0; 
+                    if (h < -3) blockType = 5; 
+                    else if (h < 0) blockType = 1; 
+                    else if (h > 12) blockType = 6; 
+                    else if (h > 6) blockType = 2; 
+
+                    const voxel = createBlockMesh(worldX * BLOCK_SIZE, worldY, worldZ * BLOCK_SIZE, blockType);
+                    chunkMeshes.push(voxel);
+
+                    createBlockMesh(worldX * BLOCK_SIZE, worldY - BLOCK_SIZE, worldZ * BLOCK_SIZE, (h > 6 ? 2 : 1), chunkMeshes);
+                    createBlockMesh(worldX * BLOCK_SIZE, worldY - BLOCK_SIZE*2, worldZ * BLOCK_SIZE, 2, chunkMeshes);
+
+                    if (blockType === 0 && Math.random() > 0.98) {
+                         createTree(worldX * BLOCK_SIZE, worldY + BLOCK_SIZE, worldZ * BLOCK_SIZE, chunkMeshes);
+                    }
+                }
+            }
+
+            chunks[chunkKey] = chunkMeshes;
+        }
+
+        function createBlockMesh(x, y, z, matIndex, targetArray) {
+            const voxel = new THREE.Mesh(new THREE.BoxGeometry(BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE), materials[matIndex]);
+            voxel.position.set(x, y, z);
+            voxel.matrixAutoUpdate = false; 
+            voxel.updateMatrix();
+            scene.add(voxel);
+            
+            objects.push(voxel);
+            if (targetArray) targetArray.push(voxel);
+            
+            const countEl = document.getElementById('block-count');
+            if(countEl) countEl.innerText = objects.length;
+            
+            return voxel;
+        }
+
+        function updateChunks() {
+            const playerChunkX = Math.floor(controls.getObject().position.x / (BLOCK_SIZE * CHUNK_SIZE));
+            const playerChunkZ = Math.floor(controls.getObject().position.z / (BLOCK_SIZE * CHUNK_SIZE));
+
+            const neededChunks = new Set();
+            for (let x = -RENDER_DISTANCE; x <= RENDER_DISTANCE; x++) {
+                for (let z = -RENDER_DISTANCE; z <= RENDER_DISTANCE; z++) {
+                    const key = getChunkKey(playerChunkX + x, playerChunkZ + z);
+                    neededChunks.add(key);
+                }
+            }
+
+            for (const key in chunks) {
+                if (!neededChunks.has(key)) {
+                    chunks[key].forEach(mesh => {
+                        scene.remove(mesh);
+                        const idx = objects.indexOf(mesh);
+                        if (idx > -1) objects.splice(idx, 1);
+                    });
+                    delete chunks[key];
+                }
+            }
+
+            neededChunks.forEach(key => {
+                if (!chunks[key]) {
+                    const [cx, cz] = key.split(':').map(Number);
+                    generateChunk(cx, cz);
+                }
+            });
+            
+            const chunkInfoEl = document.getElementById('chunk-info');
+            if(chunkInfoEl) chunkInfoEl.innerText = `${Object.keys(chunks).length} Yüklü`;
+            
+            const blockCountEl = document.getElementById('block-count');
+            if(blockCountEl) blockCountEl.innerText = objects.length;
+        }
+
+        function createTree(x, y, z, targetArray) {
+            const h = 4 + Math.floor(Math.random() * 2);
+            for (let i = 0; i < h; i++) createBlockMesh(x, y + i * BLOCK_SIZE, z, 3, targetArray);
+            const ly = y + h * BLOCK_SIZE;
+            for (let lx = -1; lx <= 1; lx++) {
+                for (let lz = -1; lz <= 1; lz++) {
+                    for (let l_i = 0; l_i <= 1; l_i++) {
+                        if (!(lx === 0 && lz === 0 && l_i === 0)) {
+                             createBlockMesh(x + lx*BLOCK_SIZE, ly + l_i*BLOCK_SIZE, z + lz*BLOCK_SIZE, 4, targetArray);
+                        }
+                    }
+                }
+            }
+            createBlockMesh(x, ly + 2*BLOCK_SIZE, z, 4, targetArray);
+        }
+
+        function selectSlot(index) {
+            selectedSlotIndex = index;
+            document.querySelectorAll('.inventory-slot').forEach((s, i) => s.classList.toggle('selected', i === index));
+        }
+
+        function createManualBlock(x, y, z, matIndex) {
+            createBlockMesh(x, y, z, matIndex, null);
+        }
+
+        function handleContinuousActions(time) {
+            if (time - lastActionTime < ACTION_COOLDOWN) return;
+
+            raycaster.setFromCamera(new THREE.Vector2(0, 0), camera);
+            raycaster.far = BLOCK_SIZE * 8;
+            const intersects = raycaster.intersectObjects(objects);
+
+            if (isBreaking && intersects.length > 0) {
+                const obj = intersects[0].object;
+                scene.remove(obj);
+                objects.splice(objects.indexOf(obj), 1);
+                
+                const blockCountEl = document.getElementById('block-count');
+                if(blockCountEl) blockCountEl.innerText = objects.length;
+                lastActionTime = time;
+            } 
+            else if (isPlacing && rolloverMesh.visible) {
+                const p = rolloverMesh.position;
+                const playerPos = controls.getObject().position;
+                if (Math.abs(playerPos.x - p.x) < BLOCK_SIZE*0.7 && Math.abs(playerPos.z - p.z) < BLOCK_SIZE*0.7 && Math.abs(playerPos.y - p.y) < BLOCK_SIZE*1.2) return;
+                
+                createManualBlock(p.x, p.y, p.z, selectedSlotIndex);
+                lastActionTime = time;
+            }
+        }
+
+        function updateCoords() {
+            const pos = controls.getObject().position;
+            const x = Math.round(pos.x / BLOCK_SIZE);
+            const y = Math.round(pos.y / BLOCK_SIZE);
+            const z = Math.round(pos.z / BLOCK_SIZE);
+            const coordsEl = document.getElementById('coords-display');
+            if(coordsEl) coordsEl.innerText = `X: ${x} | Y: ${y} | Z: ${z}`;
+        }
+
+        let frameCount = 0;
+
+        function animate() {
+            requestAnimationFrame(animate);
+            const time = performance.now();
+
+            if (controls.isLocked) {
+                handleContinuousActions(time);
+                updateCoords();
+                
+                frameCount++;
+                if (frameCount % 20 === 0) {
+                    updateChunks();
+                }
+
+                raycaster.setFromCamera(new THREE.Vector2(0, 0), camera);
+                raycaster.far = BLOCK_SIZE * 8;
+                const intersects = raycaster.intersectObjects(objects);
+                
+                if (intersects.length > 0) {
+                    rolloverMesh.visible = true;
+                    const intersect = intersects[0];
+                    const normal = intersect.face.normal.clone();
+                    rolloverMesh.position.copy(intersect.object.position).add(normal.multiplyScalar(BLOCK_SIZE));
+                } else {
+                    rolloverMesh.visible = false;
+                }
+
+                const rawDelta = (time - prevTime) / 1000;
+                const delta = Math.min(rawDelta, 0.05);
+                
+                const friction = isFlying ? 5.0 : 10.0; 
+                velocity.x -= velocity.x * friction * delta; 
+                velocity.z -= velocity.z * friction * delta;
+                
+                if (isFlying) {
+                    velocity.y -= velocity.y * 5.0 * delta; 
+                    if (moveUp) velocity.y += 400 * delta; 
+                    if (moveDown) velocity.y -= 400 * delta;
+                } else {
+                    velocity.y -= 9.8 * 60.0 * delta; 
+                }
+
+                direction.z = Number(moveForward) - Number(moveBackward);
+                direction.x = Number(moveRight) - Number(moveLeft);
+                direction.normalize();
+
+                const speed = isFlying ? 1000.0 : 500.0; 
+                if (moveForward || moveBackward) velocity.z -= direction.z * speed * delta;
+                if (moveLeft || moveRight) velocity.x -= direction.x * speed * delta;
+
+                // --- UÇUŞ MODUNDA ÇARPIŞMA KONTROLÜ (Gelişmiş) ---
+                if (isFlying) {
+                    const camPos = controls.getObject().position;
+                    const moveVec = new THREE.Vector3();
+                    if (moveForward) moveVec.z -= 1;
+                    if (moveBackward) moveVec.z += 1;
+                    if (moveLeft) moveVec.x -= 1;
+                    if (moveRight) moveVec.x += 1;
+                    moveVec.normalize();
+                    // Yatay hareket yönünü kameranın baktığı Y açısına göre ayarla (sadece yatay düzlem)
+                    const euler = new THREE.Euler(0, camera.rotation.y, 0, 'YXZ');
+                    moveVec.applyEuler(euler);
+
+                    if (moveVec.lengthSq() > 0) {
+                        raycaster.set(camPos, moveVec);
+                        raycaster.far = BLOCK_SIZE; // Yakın çarpışma
+                        const hits = raycaster.intersectObjects(objects);
+                        if (hits.length > 0) {
+                            // Çarpışma varsa hızı sıfırla
+                            velocity.x = 0;
+                            velocity.z = 0;
+                        }
+                    }
+                    
+                    // Dikey çarpışma kontrolü
+                    if (velocity.y !== 0) {
+                        const upDownVec = new THREE.Vector3(0, velocity.y > 0 ? 1 : -1, 0);
+                        raycaster.set(camPos, upDownVec);
+                        raycaster.far = BLOCK_SIZE;
+                        const vHits = raycaster.intersectObjects(objects);
+                        if(vHits.length > 0) {
+                            velocity.y = 0;
+                        }
+                    }
+                }
+
+                controls.moveRight(-velocity.x * delta);
+                controls.moveForward(-velocity.z * delta);
+                controls.getObject().position.y += (velocity.y * delta);
+
+                if (!isFlying) {
+                    const pPos = controls.getObject().position;
+                    const rayDown = new THREE.Raycaster(pPos, new THREE.Vector3(0, -1, 0), 0, BLOCK_SIZE * 2.5);
+                    const floorCheck = rayDown.intersectObjects(objects);
+                    
+                    if (floorCheck.length > 0) {
+                        velocity.y = Math.max(0, velocity.y);
+                        canJump = true;
+                        if(pPos.y < floorCheck[0].point.y + BLOCK_SIZE*1.4) pPos.y = floorCheck[0].point.y + BLOCK_SIZE*1.4;
+                    }
+                }
+                
+                if (controls.getObject().position.y < -300) {
+                    velocity.y = 0;
+                    controls.getObject().position.y = 200; 
+                }
+            }
+            prevTime = time;
+            renderer.render(scene, camera);
+        }
+    </script>
+</body>
+</html>
