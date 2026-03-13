@@ -604,7 +604,8 @@
         }
 
         // --- MOBİL KONTROLLER VE DOKUNMATİK DESTEĞİ ---
-        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 800;
+        // Daha gelişmiş mobil, tablet ve dokunmatik ekran algılama
+        const isMobile = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0) || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 1024;
         
         if (isMobile) {
             const mobileStyles = document.createElement('style');
@@ -778,7 +779,7 @@
 
             // Uçma Modunda Alçalma Butonunu Göster
             setInterval(() => {
-                btnDown.style.display = isFlying ? 'flex' : 'none';
+                if(btnDown) btnDown.style.display = isFlying ? 'flex' : 'none';
             }, 100);
         }
     </script>
