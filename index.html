@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gizli Oyuncu | G3 Projects</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            background-color: #0d0d0d; 
+            color: #fff; 
+            font-family: 'Segoe UI', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 450px;
+            padding: 30px;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        h1 { font-size: 2rem; color: #00ff41; letter-spacing: 2px; margin-bottom: 20px; }
+
+        .game-menu { display: flex; flex-direction: column; gap: 15px; }
+
+        .game-card {
+            display: block;
+            padding: 18px;
+            text-decoration: none;
+            border-radius: 12px;
+            color: white;
+            font-weight: bold;
+            transition: 0.3s;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        /* Klasör isimlerine tam uyumlu linkler */
+        .valostrike { background: #bd3944; }
+        .creativemc { background: #2e7d32; }
+
+        .game-card:hover { transform: scale(1.03); filter: brightness(1.2); }
+
+        .footer { margin-top: 25px; color: #666; font-size: 0.8rem; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>GIZLI OYUNCU</h1>
+        
+        <div class="game-menu">
+            <a href="./ValoStrike/" target="_blank" class="game-card valostrike">
+                🔫 ValoStrike'ı Başlat
+            </a>
+
+            <a href="./CreativeMC/" target="_blank" class="game-card creativemc">
+                🧱 CreativeMC'yi Başlat
+            </a>
+        </div>
+
+        <p class="footer">gizlioyuncu3.github.io</p>
+    </div>
+
+</body>
+</html>
