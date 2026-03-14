@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gizlioyuncu3|G3 GAMING</title>
+    <title>Gizlioyuncu3 | G3 GAMING</title>
     <style>
         /* Minecraft Fontuna benzer bir font yükleyelim */
         @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
@@ -11,10 +11,12 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
         body { 
-            background-color: #1a1a1a; 
-            /* Arka planı koyu bir taş deseni yapalım */
-            background-image: radial-gradient(#2c2c2c 1px, transparent 1px);
-            background-size: 20px 20px;
+            /* Orijinal Minecraft Tuğla (Brick) Dokusu */
+            background-color: #894b3e; 
+            background-image: url('data:image/svg+xml;utf8,<svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><rect width="32" height="32" fill="%23894b3e"/><rect y="14" width="32" height="2" fill="%23b0a4a0"/><rect y="30" width="32" height="2" fill="%23b0a4a0"/><rect x="14" width="2" height="14" fill="%23b0a4a0"/><rect x="30" y="16" width="2" height="14" fill="%23b0a4a0"/></svg>');
+            background-size: 64px 64px;
+            image-rendering: pixelated;
+            
             color: #fff; 
             font-family: 'VT323', monospace; /* Retro oyun fontu */
             display: flex;
@@ -28,25 +30,27 @@
             max-width: 450px;
             padding: 30px;
             text-align: center;
-            /* Granit Bloğu Görünümü */
-            background-color: #946358; /* Granit ana rengi */
-            background-image: 
-                linear-gradient(45deg, rgba(0,0,0,0.1) 25%, transparent 25%),
-                linear-gradient(-45deg, rgba(0,0,0,0.1) 25%, transparent 25%),
-                linear-gradient(45deg, transparent 75%, rgba(0,0,0,0.1) 75%),
-                linear-gradient(-45deg, transparent 75%, rgba(0,0,0,0.1) 75%);
-            background-size: 4px 4px;
-            border: 6px solid #5d3d36; /* Blok kenarlığı */
-            box-shadow: inset -4px -4px 0px #4a312b, inset 4px 4px 0px #bd8478;
+            
+            /* Orijinal Minecraft Granit Dokusu */
+            background-color: #9e6a5f;
+            background-image: url('data:image/svg+xml;utf8,<svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><rect width="16" height="16" fill="%239e6a5f"/><rect x="2" y="2" width="2" height="2" fill="%237b4f45"/><rect x="8" y="4" width="4" height="2" fill="%23b28176"/><rect x="12" y="10" width="2" height="2" fill="%237b4f45"/><rect x="4" y="12" width="2" height="4" fill="%23b28176"/><rect x="10" y="2" width="2" height="2" fill="%23663e36"/><rect x="6" y="8" width="2" height="2" fill="%23663e36"/></svg>');
+            background-size: 48px 48px;
             image-rendering: pixelated;
+            
+            border: 6px solid #5d3d36; /* Blok kenarlığı */
+            box-shadow: inset -4px -4px 0px rgba(0,0,0,0.4), inset 4px 4px 0px rgba(255,255,255,0.2), 10px 10px 20px rgba(0,0,0,0.6);
         }
 
         h1 { 
             font-size: 3rem; 
             color: #ffffff; 
-            text-shadow: 3px 3px 0px #000;
+            text-shadow: 4px 4px 0px #000;
             margin-bottom: 25px; 
             letter-spacing: 1px;
+            background: rgba(0,0,0,0.3);
+            display: inline-block;
+            padding: 0 15px;
+            border-radius: 5px;
         }
 
         .game-menu { display: flex; flex-direction: column; gap: 15px; }
@@ -76,15 +80,25 @@
         .valostrike { border-color: #bd3944; }
         .creativemc { border-color: #2e7d32; }
         .mobilecreative { border-color: #ff9800; }
+        .mobilevalostrike { border-color: #00bcd4; } /* Yeni oyun için neon mavi */
 
         .credits {
             margin-top: 20px;
             font-size: 1.2rem;
             color: #ffeb3b;
-            text-shadow: 1px 1px 0px #000;
+            text-shadow: 2px 2px 0px #000;
+            background: rgba(0,0,0,0.4);
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 5px;
         }
 
-        .footer { margin-top: 15px; color: #333; font-size: 0.9rem; }
+        .footer { 
+            margin-top: 15px; 
+            color: #ddd; 
+            font-size: 1rem; 
+            text-shadow: 1px 1px 0px #000;
+        }
     </style>
 </head>
 <body>
@@ -103,6 +117,10 @@
 
             <a href="./MobileCreativeMC/" target="_blank" class="game-card mobilecreative">
                 [ MOBILECREATIVEMC ]
+            </a>
+
+            <a href="./MobileValoStrike/" target="_blank" class="game-card mobilevalostrike">
+                [ MOBILEVALOSTRIKE ]
             </a>
         </div>
 
