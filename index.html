@@ -5,103 +5,129 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gizlioyuncu3 | G3 GAMING</title>
     <style>
-        /* Minecraft Fontuna benzer bir font yükleyelim */
+        /* Minecraft Fontu */
         @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
         body { 
-            /* Orijinal Minecraft Tuğla (Brick) Dokusu */
-            background-color: #894b3e; 
-            background-image: url('data:image/svg+xml;utf8,<svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><rect width="32" height="32" fill="%23894b3e"/><rect y="14" width="32" height="2" fill="%23b0a4a0"/><rect y="30" width="32" height="2" fill="%23b0a4a0"/><rect x="14" width="2" height="14" fill="%23b0a4a0"/><rect x="30" y="16" width="2" height="14" fill="%23b0a4a0"/></svg>');
-            background-size: 64px 64px;
-            image-rendering: pixelated;
-            
             color: #fff; 
-            font-family: 'VT323', monospace; /* Retro oyun fontu */
+            font-family: 'VT323', monospace; 
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
+            overflow: hidden; /* Videonun kaydırma çubuğu oluşturmasını engeller */
+            background-color: #111; /* Video yüklenene kadar siyah ekran */
         }
 
+        /* 1. VİDEO ARKA PLAN AYARLARI */
+        .video-bg {
+            position: fixed;
+            right: 0;
+            bottom: 0;
+            min-width: 100%;
+            min-height: 100%;
+            z-index: -1; /* Videoyu en arkaya atar */
+            object-fit: cover; /* Videoyu ekrana sığdırır */
+            filter: brightness(0.5); /* Menü öne çıksın diye videoyu %50 karartıyoruz */
+        }
+
+        /* 2. GRANİT KONTEYNER (Yarı Saydam) */
         .container {
             width: 90%;
             max-width: 450px;
             padding: 30px;
             text-align: center;
+            position: relative;
+            z-index: 1;
             
-            /* Orijinal Minecraft Granit Dokusu */
-            background-color: #9e6a5f;
-            background-image: url('data:image/svg+xml;utf8,<svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><rect width="16" height="16" fill="%239e6a5f"/><rect x="2" y="2" width="2" height="2" fill="%237b4f45"/><rect x="8" y="4" width="4" height="2" fill="%23b28176"/><rect x="12" y="10" width="2" height="2" fill="%237b4f45"/><rect x="4" y="12" width="2" height="4" fill="%23b28176"/><rect x="10" y="2" width="2" height="2" fill="%23663e36"/><rect x="6" y="8" width="2" height="2" fill="%23663e36"/></svg>');
+            /* Granit rengi ama rgba ile hafif saydamlaştırdık */
+            background-color: rgba(158, 106, 95, 0.85);
+            /* Granit dokusu */
+            background-image: url('data:image/svg+xml;utf8,<svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><rect width="16" height="16" fill="none"/><rect x="2" y="2" width="2" height="2" fill="%237b4f45"/><rect x="8" y="4" width="4" height="2" fill="%23b28176"/><rect x="12" y="10" width="2" height="2" fill="%237b4f45"/><rect x="4" y="12" width="2" height="4" fill="%23b28176"/><rect x="10" y="2" width="2" height="2" fill="%23663e36"/><rect x="6" y="8" width="2" height="2" fill="%23663e36"/></svg>');
             background-size: 48px 48px;
+            background-blend-mode: overlay; /* Dokuyu yarı saydam renkle harmanlar */
             image-rendering: pixelated;
             
-            border: 6px solid #5d3d36; /* Blok kenarlığı */
-            box-shadow: inset -4px -4px 0px rgba(0,0,0,0.4), inset 4px 4px 0px rgba(255,255,255,0.2), 10px 10px 20px rgba(0,0,0,0.6);
+            border: 6px solid #5d3d36; 
+            box-shadow: 0 0 40px rgba(0,0,0,0.8), inset -4px -4px 0px rgba(0,0,0,0.4), inset 4px 4px 0px rgba(255,255,255,0.2);
         }
 
+        /* Neon Başlık */
         h1 { 
-            font-size: 3rem; 
+            font-size: 3.5rem; 
             color: #ffffff; 
-            text-shadow: 4px 4px 0px #000;
+            text-shadow: 0 0 10px #fff, 0 0 20px #e040fb; /* Pembe/Mor Neon */
             margin-bottom: 25px; 
-            letter-spacing: 1px;
-            background: rgba(0,0,0,0.3);
+            letter-spacing: 2px;
+            background: rgba(0,0,0,0.6);
             display: inline-block;
-            padding: 0 15px;
-            border-radius: 5px;
+            padding: 5px 20px;
+            border: 2px solid #e040fb;
+            box-shadow: inset 0 0 15px #e040fb;
         }
 
-        .game-menu { display: flex; flex-direction: column; gap: 15px; }
+        .game-menu { display: flex; flex-direction: column; gap: 20px; }
 
+        /* 3. NEON BUTON TASARIMI */
         .game-card {
             display: block;
             padding: 15px;
             text-decoration: none;
             color: white;
-            font-size: 1.5rem;
+            font-size: 1.6rem;
             font-weight: bold;
-            transition: 0.2s;
-            border: 4px solid #000;
-            background: #7a7a7a;
-            box-shadow: inset -4px -4px 0px #4a4a4a, inset 4px 4px 0px #b5b5b5;
+            transition: all 0.3s ease; /* Yumuşak geçiş */
+            
+            background: rgba(0, 0, 0, 0.7); /* İçi koyu */
+            border: 4px solid var(--neon); /* Çerçeve rengi değişkenden alınır */
+            box-shadow: 0 0 12px var(--neon), inset 0 0 10px var(--neon); /* Neon parlama */
             text-shadow: 2px 2px 0px #000;
         }
 
-        /* Hover Efekti - Minecraft buton tıklama hissi */
+        /* Butonun Üstüne Gelince (Hover) Efekti */
         .game-card:hover { 
-            background: #8c8c8c;
-            transform: scale(1.02);
-            border-color: #ffffff;
+            transform: scale(1.06); /* %6 Büyüt */
+            background: var(--neon); /* İçi neon renkle dolsun */
+            color: #000; /* Yazı siyah olsun */
+            text-shadow: none;
+            box-shadow: 0 0 30px var(--neon), inset 0 0 15px rgba(255,255,255,0.5); /* Parlamayı güçlendir */
+            border-color: #fff; /* Çerçeveyi beyaz yap */
         }
 
-        /* Özel Renkler */
-        .valostrike { border-color: #bd3944; }
-        .creativemc { border-color: #2e7d32; }
-        .mobilecreative { border-color: #ff9800; }
-        .mobilevalostrike { border-color: #00bcd4; } /* Yeni oyun için neon mavi */
+        /* Oyunlara Özel Neon Renkler (CSS Değişkenleri ile) */
+        .valostrike { --neon: #ff003c; }       /* Kan Kırmızısı Neon */
+        .creativemc { --neon: #00ff2a; }       /* Zehir Yeşili Neon */
+        .mobilecreative { --neon: #ffaa00; }   /* Altın Sarısı Neon */
+        .mobilevalostrike { --neon: #00d4ff; } /* Buz Mavisi Neon */
 
+        /* Neon Credits (Yapan Kişi) */
         .credits {
-            margin-top: 20px;
-            font-size: 1.2rem;
-            color: #ffeb3b;
-            text-shadow: 2px 2px 0px #000;
-            background: rgba(0,0,0,0.4);
+            margin-top: 25px;
+            font-size: 1.3rem;
+            color: #fff;
+            text-shadow: 0 0 8px #ffeb3b, 0 0 15px #ffeb3b;
+            background: rgba(0,0,0,0.6);
             display: inline-block;
-            padding: 5px 10px;
-            border-radius: 5px;
+            padding: 5px 15px;
+            border: 2px solid #ffeb3b;
+            box-shadow: inset 0 0 10px #ffeb3b;
         }
 
         .footer { 
             margin-top: 15px; 
-            color: #ddd; 
+            color: #ccc; 
             font-size: 1rem; 
             text-shadow: 1px 1px 0px #000;
         }
     </style>
 </head>
 <body>
+
+    <video autoplay muted loop playsinline class="video-bg">
+        <source src="https://cdn.pixabay.com/video/2023/10/22/186105-877022067_large.mp4" type="video/mp4">
+    </video>
 
     <div class="container">
         <h1>GIZLIOYUNCU3</h1>
