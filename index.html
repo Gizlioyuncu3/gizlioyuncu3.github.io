@@ -17,109 +17,105 @@
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            overflow: hidden; /* Videonun kaydırma çubuğu oluşturmasını engeller */
-            background-color: #111; /* Video yüklenene kadar siyah ekran */
+            overflow: hidden;
+            background-color: #000;
         }
 
-        /* 1. VİDEO ARKA PLAN AYARLARI */
+        /* 1. EFSANEVİ SİYAH-BEYAZ VİDEO ARKA PLAN */
         .video-bg {
             position: fixed;
             right: 0;
             bottom: 0;
             min-width: 100%;
             min-height: 100%;
-            z-index: -1; /* Videoyu en arkaya atar */
-            object-fit: cover; /* Videoyu ekrana sığdırır */
-            filter: brightness(0.5); /* Menü öne çıksın diye videoyu %50 karartıyoruz */
+            z-index: -1;
+            object-fit: cover;
+            /* Videoyu tamamen siyah beyaz ve karanlık yapar */
+            filter: grayscale(100%) brightness(0.4) contrast(1.2);
         }
 
-        /* 2. GRANİT KONTEYNER (Yarı Saydam) */
+        /* 2. SİYAH-BEYAZ GRANİT KONTEYNER (Diorit Görünümü) */
         .container {
             width: 90%;
             max-width: 450px;
-            padding: 30px;
+            padding: 35px;
             text-align: center;
             position: relative;
             z-index: 1;
             
-            /* Granit rengi ama rgba ile hafif saydamlaştırdık */
-            background-color: rgba(158, 106, 95, 0.85);
-            /* Granit dokusu */
-            background-image: url('data:image/svg+xml;utf8,<svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><rect width="16" height="16" fill="none"/><rect x="2" y="2" width="2" height="2" fill="%237b4f45"/><rect x="8" y="4" width="4" height="2" fill="%23b28176"/><rect x="12" y="10" width="2" height="2" fill="%237b4f45"/><rect x="4" y="12" width="2" height="4" fill="%23b28176"/><rect x="10" y="2" width="2" height="2" fill="%23663e36"/><rect x="6" y="8" width="2" height="2" fill="%23663e36"/></svg>');
+            /* Siyah-Beyaz Granit/Diorit Dokusu */
+            background-color: rgba(30, 30, 30, 0.8);
+            background-image: url('data:image/svg+xml;utf8,<svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><rect width="16" height="16" fill="none"/><rect x="2" y="2" width="2" height="2" fill="%23444"/><rect x="8" y="4" width="4" height="2" fill="%23666"/><rect x="12" y="10" width="2" height="2" fill="%23333"/><rect x="4" y="12" width="2" height="4" fill="%23555"/><rect x="10" y="2" width="2" height="2" fill="%23222"/><rect x="6" y="8" width="2" height="2" fill="%23111"/></svg>');
             background-size: 48px 48px;
-            background-blend-mode: overlay; /* Dokuyu yarı saydam renkle harmanlar */
-            image-rendering: pixelated;
             
-            border: 6px solid #5d3d36; 
-            box-shadow: 0 0 40px rgba(0,0,0,0.8), inset -4px -4px 0px rgba(0,0,0,0.4), inset 4px 4px 0px rgba(255,255,255,0.2);
+            border: 4px solid #ffffff; 
+            box-shadow: 0 0 30px rgba(255,255,255,0.2), inset 0 0 20px rgba(0,0,0,0.8);
+            backdrop-filter: blur(8px); /* Cam efekti */
         }
 
-        /* Neon Başlık */
+        /* Beyaz Neon Başlık */
         h1 { 
             font-size: 3.5rem; 
             color: #ffffff; 
-            text-shadow: 0 0 10px #fff, 0 0 20px #e040fb; /* Pembe/Mor Neon */
-            margin-bottom: 25px; 
-            letter-spacing: 2px;
-            background: rgba(0,0,0,0.6);
+            text-shadow: 0 0 15px #fff, 0 0 30px #ffffff88;
+            margin-bottom: 30px; 
+            letter-spacing: 4px;
+            border-bottom: 2px solid #fff;
             display: inline-block;
-            padding: 5px 20px;
-            border: 2px solid #e040fb;
-            box-shadow: inset 0 0 15px #e040fb;
+            padding-bottom: 5px;
         }
 
         .game-menu { display: flex; flex-direction: column; gap: 20px; }
 
-        /* 3. NEON BUTON TASARIMI */
+        /* 3. SİYAH-BEYAZ NEON BUTONLAR */
         .game-card {
             display: block;
-            padding: 15px;
+            padding: 16px;
             text-decoration: none;
             color: white;
-            font-size: 1.6rem;
+            font-size: 1.7rem;
             font-weight: bold;
-            transition: all 0.3s ease; /* Yumuşak geçiş */
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             
-            background: rgba(0, 0, 0, 0.7); /* İçi koyu */
-            border: 4px solid var(--neon); /* Çerçeve rengi değişkenden alınır */
-            box-shadow: 0 0 12px var(--neon), inset 0 0 10px var(--neon); /* Neon parlama */
-            text-shadow: 2px 2px 0px #000;
+            background: rgba(0, 0, 0, 0.8);
+            border: 2px solid #fff;
+            box-shadow: 0 0 5px #fff, inset 0 0 5px #fff;
+            text-shadow: 0 0 5px #fff;
+            position: relative;
+            overflow: hidden;
         }
 
-        /* Butonun Üstüne Gelince (Hover) Efekti */
+        /* Hover: Parlama Efekti */
         .game-card:hover { 
-            transform: scale(1.06); /* %6 Büyüt */
-            background: var(--neon); /* İçi neon renkle dolsun */
-            color: #000; /* Yazı siyah olsun */
+            transform: scale(1.05);
+            background: #fff;
+            color: #000;
+            box-shadow: 0 0 40px #fff, 0 0 80px #ffffff88;
             text-shadow: none;
-            box-shadow: 0 0 30px var(--neon), inset 0 0 15px rgba(255,255,255,0.5); /* Parlamayı güçlendir */
-            border-color: #fff; /* Çerçeveyi beyaz yap */
         }
 
-        /* Oyunlara Özel Neon Renkler (CSS Değişkenleri ile) */
-        .valostrike { --neon: #ff003c; }       /* Kan Kırmızısı Neon */
-        .creativemc { --neon: #00ff2a; }       /* Zehir Yeşili Neon */
-        .mobilecreative { --neon: #ffaa00; }   /* Altın Sarısı Neon */
-        .mobilevalostrike { --neon: #00d4ff; } /* Buz Mavisi Neon */
-
-        /* Neon Credits (Yapan Kişi) */
+        /* Credits (Yapan Kişi) */
         .credits {
-            margin-top: 25px;
-            font-size: 1.3rem;
+            margin-top: 30px;
+            font-size: 1.4rem;
             color: #fff;
-            text-shadow: 0 0 8px #ffeb3b, 0 0 15px #ffeb3b;
-            background: rgba(0,0,0,0.6);
-            display: inline-block;
-            padding: 5px 15px;
-            border: 2px solid #ffeb3b;
-            box-shadow: inset 0 0 10px #ffeb3b;
+            text-shadow: 0 0 10px #fff;
+            letter-spacing: 2px;
         }
 
         .footer { 
             margin-top: 15px; 
-            color: #ccc; 
-            font-size: 1rem; 
-            text-shadow: 1px 1px 0px #000;
+            color: #888; 
+            font-size: 0.9rem;
+        }
+
+        /* Sayfa Kenarlarındaki Hafif Karanlık (Vignette) */
+        .vignette {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle, transparent 40%, black 150%);
+            z-index: 0;
+            pointer-events: none;
         }
     </style>
 </head>
@@ -129,24 +125,26 @@
         <source src="https://cdn.pixabay.com/video/2023/10/22/186105-877022067_large.mp4" type="video/mp4">
     </video>
 
+    <div class="vignette"></div>
+
     <div class="container">
-        <h1>G3 GAMING</h1>
+        <h1>GIZLIOYUNCU3</h1>
         
         <div class="game-menu">
-            <a href="./ValoStrike/" target="_blank" class="game-card valostrike">
-                [ VALOSTRIKE ]
+            <a href="./ValoStrike/" target="_blank" class="game-card">
+                VALOSTRIKE
             </a>
 
-            <a href="./CreativeMC/" target="_blank" class="game-card creativemc">
-                [ CREATIVEMC ]
+            <a href="./G3Craft/" target="_blank" class="game-card">
+                G3CRAFT
             </a>
 
-            <a href="./MobileCreativeMC/" target="_blank" class="game-card mobilecreative">
-                [ MOBILECREATIVEMC ]
+            <a href="./MobileG3Craft/" target="_blank" class="game-card">
+                MOBILEG3CRAFT
             </a>
 
-            <a href="./MobileValoStrike/" target="_blank" class="game-card mobilevalostrike">
-                [ MOBILEVALOSTRIKE ]
+            <a href="./MobileValoStrike/" target="_blank" class="game-card">
+                MOBILEVALOSTRIKE
             </a>
         </div>
 
