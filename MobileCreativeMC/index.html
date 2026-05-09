@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Creative Minecraft - Stabil Sürüm</title>
+    <title>G3CRAFT - Stabil Sürüm</title>
     <style>
         body { margin: 0; overflow: hidden; font-family: 'Inter', sans-serif; user-select: none; background-color: #000; }
         
@@ -74,7 +74,7 @@
     <div id="mode-indicator">YÜRÜME MODU</div>
     
     <div id="ui-layer">
-        <div style="font-size: 24px; font-weight: 900;">CREATIVE <span style="color:#00ff88">MINECRAFT</span></div>
+        <div style="font-size: 24px; font-weight: 900;">G3<span style="color:#00ff88">CRAFT</span></div>
         <div style="opacity: 0.5; font-size: 11px; margin-top: 2px; letter-spacing: 2px; text-transform: uppercase;">Stable Build V4.4 (Flight Fix)</div>
         <div id="coords-display">X: 0 | Y: 0 | Z: 0</div>
         <div style="margin-top: 15px; font-size: 13px; font-weight: 600;">Aktif Chunk: <span id="chunk-info" style="color:#00ff88">0</span></div>
@@ -84,7 +84,7 @@
     <div id="inventory-container"></div>
 
     <div id="instructions">
-        <h1>CREATIVE <span>MC</span></h1>
+        <h1>G3<span>CRAFT</span></h1>
         <p style="font-size: 18px; opacity: 0.7;">Sonsuz Dünya, Dağlar ve Gelişmiş Uçuş</p>
         <div style="margin-top: 40px; background: rgba(255,255,255,0.05); padding: 25px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1);">
             <p style="font-weight: 800; font-size: 22px; margin-bottom: 20px;">BAŞLAMAK İÇİN TIKLA</p>
@@ -608,17 +608,30 @@
         const isMobile = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0) || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 1024;
         
         if (isMobile) {
+            // Sol üstteki ekranı kapatan arayüzü mobilde tamamen yok et
+            document.getElementById('ui-layer').style.display = 'none';
+
             const mobileStyles = document.createElement('style');
             mobileStyles.innerHTML = `
                 #mobile-ui { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 40; }
-                .joystick-base { position: absolute; bottom: 40px; left: 40px; width: 120px; height: 120px; background: rgba(255,255,255,0.1); border: 2px solid rgba(255,255,255,0.3); border-radius: 50%; pointer-events: auto; touch-action: none; display: flex; justify-content: center; align-items: center; }
-                .joystick-knob { width: 50px; height: 50px; background: rgba(0,255,136,0.6); border-radius: 50%; pointer-events: none; transform: translate(0px, 0px); }
-                .m-btn { position: absolute; background: rgba(255,255,255,0.1); border: 2px solid rgba(255,255,255,0.3); border-radius: 50%; color: white; font-weight: 800; display: flex; justify-content: center; align-items: center; pointer-events: auto; touch-action: none; user-select: none; }
-                .m-btn:active { background: rgba(0,255,136,0.5); border-color: #00ff88; }
-                #btn-jump { bottom: 40px; right: 40px; width: 80px; height: 80px; font-size: 16px; }
-                #btn-place { bottom: 140px; right: 40px; width: 60px; height: 60px; font-size: 12px; }
-                #btn-break { bottom: 40px; right: 140px; width: 60px; height: 60px; font-size: 12px; }
-                #btn-down { bottom: 140px; right: 120px; width: 50px; height: 50px; font-size: 10px; display: none; }
+                
+                /* Yarı Saydam ve Duyarlı Joystick (Cihaz boyutuna göre ayarlanır) */
+                .joystick-base { position: absolute; bottom: 8vh; left: 5vw; width: 25vw; height: 25vw; max-width: 130px; max-height: 130px; background: rgba(255,255,255,0.05); border: 2px solid rgba(255,255,255,0.1); border-radius: 50%; pointer-events: auto; touch-action: none; display: flex; justify-content: center; align-items: center; }
+                .joystick-knob { width: 45%; height: 45%; background: rgba(0,255,136,0.3); border-radius: 50%; pointer-events: none; transform: translate(0px, 0px); }
+                
+                /* Yarı Saydam ve Duyarlı Sağ Tuşlar */
+                .m-btn { position: absolute; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.15); border-radius: 50%; color: rgba(255,255,255,0.6); font-weight: 800; display: flex; justify-content: center; align-items: center; pointer-events: auto; touch-action: none; user-select: none; }
+                .m-btn:active { background: rgba(0,255,136,0.4); border-color: rgba(0,255,136,0.6); color: white; }
+                #btn-jump { bottom: 8vh; right: 5vw; width: 20vw; height: 20vw; max-width: 90px; max-height: 90px; font-size: max(12px, 3.5vw); }
+                #btn-place { bottom: 25vh; right: 5vw; width: 14vw; height: 14vw; max-width: 65px; max-height: 65px; font-size: max(10px, 2.5vw); }
+                #btn-break { bottom: 8vh; right: 28vw; width: 14vw; height: 14vw; max-width: 65px; max-height: 65px; font-size: max(10px, 2.5vw); }
+                #btn-down { bottom: 23vh; right: 23vw; width: 12vw; height: 12vw; max-width: 55px; max-height: 55px; font-size: max(9px, 2vw); display: none; }
+
+                /* Mobil Envanter Boyutlandırması (Cihaza Göre Ayarlanır) */
+                #inventory-container { bottom: 10px; width: 90vw; flex-wrap: nowrap; overflow-x: auto; padding: 8px; gap: 6px; border-radius: 16px; background: rgba(15, 15, 15, 0.6); -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+                #inventory-container::-webkit-scrollbar { display: none; }
+                .inventory-slot { width: 11vw; height: 11vw; max-width: 55px; max-height: 55px; border-radius: 10px; flex-shrink: 0; }
+                .slot-name { font-size: 10px; bottom: 115%; padding: 4px 8px; }
             `;
             document.head.appendChild(mobileStyles);
 
@@ -731,12 +744,16 @@
             function updateJoy(touch) {
                 let dx = touch.clientX - joyCenter.x;
                 let dy = touch.clientY - joyCenter.y;
-                const maxDist = 40;
+                
+                // Joystick limitlerini butonun esnek (responsive) boyutuna göre ayarla
+                const rect = joyBase.getBoundingClientRect();
+                const maxDist = rect.width * 0.35; 
+                
                 const dist = Math.sqrt(dx*dx + dy*dy);
                 if(dist > maxDist) { dx = (dx/dist)*maxDist; dy = (dy/dist)*maxDist; }
                 joyKnob.style.transform = `translate(${dx}px, ${dy}px)`;
 
-                const threshold = 15;
+                const threshold = rect.width * 0.15;
                 moveForward = dy < -threshold;
                 moveBackward = dy > threshold;
                 moveLeft = dx < -threshold;
