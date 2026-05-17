@@ -18,102 +18,87 @@
             align-items: center;
             min-height: 100vh;
             overflow: hidden;
-            background-color: #000;
+            background-color: #000; /* Arka plan tamamen siyah */
         }
 
-        /* 1. EFSANEVİ SİYAH-BEYAZ VİDEO ARKA PLAN */
-        .video-bg {
+        /* 1. ARKA PLAN UÇUŞAN PARÇACIK KATMANI */
+        #particle-canvas {
             position: fixed;
-            right: 0;
-            bottom: 0;
-            min-width: 100%;
-            min-height: 100%;
-            z-index: -1;
-            object-fit: cover;
-            /* Videoyu tamamen siyah beyaz ve karanlık yapar */
-            filter: grayscale(100%) brightness(0.4) contrast(1.2);
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
         }
 
-        /* 2. SİYAH-BEYAZ GRANİT KONTEYNER (Diorit Görünümü) */
+        /* 2. SİYAH-BEYAZ GRANİT (DİORİT) KONTEYNER (DOKUNULMADI) */
         .container {
-            width: 90%;
+            width: 95%;
             max-width: 450px;
             padding: 35px;
             text-align: center;
             position: relative;
             z-index: 1;
             
-            /* Siyah-Beyaz Granit/Diorit Dokusu */
-            background-color: rgba(30, 30, 30, 0.8);
-            background-image: url('data:image/svg+xml;utf8,<svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><rect width="16" height="16" fill="none"/><rect x="2" y="2" width="2" height="2" fill="%23444"/><rect x="8" y="4" width="4" height="2" fill="%23666"/><rect x="12" y="10" width="2" height="2" fill="%23333"/><rect x="4" y="12" width="2" height="4" fill="%23555"/><rect x="10" y="2" width="2" height="2" fill="%23222"/><rect x="6" y="8" width="2" height="2" fill="%23111"/></svg>');
+            background-color: rgba(20, 20, 20, 0.85);
+            /* Siyah-Beyaz Minecraft Dokusu */
+            background-image: url('data:image/svg+xml;utf8,<svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><rect width="16" height="16" fill="none"/><rect x="2" y="2" width="2" height="2" fill="%23444"/><rect x="8" y="4" width="4" height="2" fill="%23666"/><rect x="12" y="10" width="2" height="2" fill="%23333"/><rect x="4" y="12" width="2" height="4" fill="%23555"/></svg>');
             background-size: 48px 48px;
             
             border: 4px solid #ffffff; 
-            box-shadow: 0 0 30px rgba(255,255,255,0.2), inset 0 0 20px rgba(0,0,0,0.8);
-            backdrop-filter: blur(8px); /* Cam efekti */
+            box-shadow: 0 0 30px rgba(255,255,255,0.2), inset 0 0 15px rgba(0,0,0,1);
+            backdrop-filter: blur(5px);
         }
 
-        /* Beyaz Neon Başlık */
         h1 { 
             font-size: 3.5rem; 
             color: #ffffff; 
-            text-shadow: 0 0 15px #fff, 0 0 30px #ffffff88;
+            text-shadow: 0 0 15px #fff;
             margin-bottom: 30px; 
             letter-spacing: 4px;
             border-bottom: 2px solid #fff;
             display: inline-block;
-            padding-bottom: 5px;
         }
 
         .game-menu { display: flex; flex-direction: column; gap: 20px; }
 
-        /* 3. SİYAH-BEYAZ NEON BUTONLAR */
+        /* 3. BEYAZ NEON BUTONLAR (DOKUNULMADI) */
         .game-card {
             display: block;
             padding: 16px;
             text-decoration: none;
             color: white;
-            font-size: 1.7rem;
-            font-weight: bold;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            font-size: 1.8rem;
+            transition: all 0.4s ease;
             
-            background: rgba(0, 0, 0, 0.8);
+            background: rgba(0, 0, 0, 0.9);
             border: 2px solid #fff;
             box-shadow: 0 0 5px #fff, inset 0 0 5px #fff;
             text-shadow: 0 0 5px #fff;
-            position: relative;
-            overflow: hidden;
         }
 
-        /* Hover: Parlama Efekti */
         .game-card:hover { 
             transform: scale(1.05);
             background: #fff;
             color: #000;
-            box-shadow: 0 0 40px #fff, 0 0 80px #ffffff88;
+            box-shadow: 0 0 40px #fff;
             text-shadow: none;
         }
 
-        /* Credits (Yapan Kişi) */
         .credits {
             margin-top: 30px;
             font-size: 1.4rem;
             color: #fff;
             text-shadow: 0 0 10px #fff;
-            letter-spacing: 2px;
         }
 
-        .footer { 
-            margin-top: 15px; 
-            color: #888; 
-            font-size: 0.9rem;
-        }
+        .footer { margin-top: 15px; color: #666; font-size: 0.9rem; }
 
-        /* Sayfa Kenarlarındaki Hafif Karanlık (Vignette) */
-        .vignette {
+        /* Ekran kenarlarındaki karartma */
+        .overlay {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: radial-gradient(circle, transparent 40%, black 150%);
+            background: radial-gradient(circle, transparent 30%, black 150%);
             z-index: 0;
             pointer-events: none;
         }
@@ -121,14 +106,12 @@
 </head>
 <body>
 
-    <video autoplay muted loop playsinline class="video-bg">
-        <source src="https://cdn.pixabay.com/video/2023/10/22/186105-877022067_large.mp4" type="video/mp4">
-    </video>
+    <canvas id="particle-canvas"></canvas>
 
-    <div class="vignette"></div>
+    <div class="overlay"></div>
 
     <div class="container">
-        <h1>G3 GAMING</h1>
+        <h1>GIZLIOYUNCU3</h1>
         
         <div class="game-menu">
             <a href="./ValoStrike/" target="_blank" class="game-card">
@@ -152,5 +135,73 @@
         <p class="footer">gizlioyuncu3.github.io</p>
     </div>
 
+    <script>
+        const canvas = document.getElementById('particle-canvas');
+        const ctx = canvas.getContext('2d');
+
+        // Ekran boyutu değiştikçe arka planı tam ekran yap
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        const particles = [];
+        const particleCount = 70; // Ekranda aynı anda uçuşacak cisim sayısı
+
+        class Particle {
+            constructor() {
+                this.reset();
+                // Sayfa ilk açıldığında cisimler ekranın her yerine dağılsın
+                this.y = Math.random() * canvas.height;
+            }
+
+            reset() {
+                this.x = Math.random() * canvas.width;
+                this.y = canvas.height + 10; // Ekranın altından girsinler (Yukarı uçuş efekti)
+                this.size = Math.random() * 4 + 2; // Minecraft konsepti için 2px ile 6px arası kareler
+                this.speedY = -(Math.random() * 0.8 + 0.3); // Yukarı doğru uçma hızı
+                this.speedX = (Math.random() - 0.5) * 0.4; // Hafif rüzgar / sağa sola salınım efekti
+                this.opacity = Math.random() * 0.6 + 0.2; // Rastgele saydamlık (Derinlik hissi verir)
+            }
+
+            update() {
+                this.y += this.speedY;
+                this.x += this.speedX;
+
+                // Cisim ekrandan tamamen çıkarsa tabandan tekrar üret
+                if (this.y < -10 || this.x < -10 || this.x > canvas.width + 10) {
+                    this.reset();
+                }
+            }
+
+            draw() {
+                ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity})`;
+                // Tam Minecraft temasına uyması için kare pikseller halinde çiziyoruz (fillRect)
+                ctx.fillRect(this.x, this.y, this.size, this.size);
+            }
+        }
+
+        // Cisimleri oluştur
+        for (let i = 0; i < particleCount; i++) {
+            particles.push(new Particle());
+        }
+
+        // Sürekli yenilenen animasyon döngüsü
+        function animate() {
+            ctx.fillStyle = '#000000'; // Tam siyah arka plan
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            particles.forEach(p => {
+                p.update();
+                p.draw();
+            });
+
+            requestAnimationFrame(animate);
+        }
+
+        animate();
+    </script>
 </body>
 </html>
