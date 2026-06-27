@@ -951,11 +951,13 @@
     </div>
 
     <script>
+        // API AYARLARI
         const API_KEY = "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";
         const API_URL = "https://api.groq.com/openai/v1/chat/completions";
         const MODEL = "llama-3.3-70b-versatile";
         const AI_AVATAR_URL = "g3.png";
-        const GOOGLE_CLIENT_ID = "YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com";
+        // Google Client ID boş bırakılırsa manuel giriş zorunlu olur, hata vermez.
+        const GOOGLE_CLIENT_ID = ""; 
 
         const SYSTEM_PROMPT = `Adın G3. Net, yardımcı ve direkt yanıtlar ver. Yanıtlarında Markdown kullanabilirsin (başlıklar, listeler, kod blokları vb.).
 KURALLAR:
@@ -1044,6 +1046,8 @@ KURALLAR:
             if (typeof google === 'undefined' || !google.accounts || !google.accounts.id) {
                 return;
             }
+            if (!GOOGLE_CLIENT_ID) return; // Client ID yoksa init etme
+            
             try {
                 google.accounts.id.initialize({
                     client_id: GOOGLE_CLIENT_ID,
@@ -1068,14 +1072,13 @@ KURALLAR:
             setTimeout(initializeGoogleSignIn, 500);
         });
 
-        // GOOGLE BUTONLARI (Client ID yoksa prompt ile uyar)
+        // GOOGLE BUTONLARI
         ['googleSignInBtn', 'googleSignInBtnRegister'].forEach(id => {
             $(id).addEventListener('click', () => {
-                if (GOOGLE_CLIENT_ID === "YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com") {
-                    showToast('Google Client ID henüz ayarlanmadı', true);
-                    if (typeof google !== 'undefined' && google.accounts && google.accounts.id) {
-                        google.accounts.id.prompt();
-                    }
+                if (!GOOGLE_CLIENT_ID) {
+                    showToast('Google Client ID ayarlanmadı. Lütfen manuel giriş yapın.', true);
+                } else if (typeof google !== 'undefined' && google.accounts && google.accounts.id) {
+                    google.accounts.id.prompt();
                 }
             });
         });
@@ -1131,7 +1134,7 @@ KURALLAR:
             }
         }
 
-        // PROFIL MODAL FONKSİYONLARI (Gerçek işlevsellik)
+        // PROFIL MODAL FONKSİYONLARI
         function openProfileModal() {
             if (!state.user) return;
             $('profileName').textContent = state.user.name;
@@ -1752,7 +1755,7 @@ KURALLAR:
                 typingIndicator.classList.remove('active');
                 let userFriendlyMessage = 'Bir sorun oluştu: ';
                 if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
-                    userFriendlyMessage = 'Ağ bağlantısı hatası. İnternet bağlantınızı kontrol edin.';
+                    userFriendlyMessage = 'Ağ bağlantısı hatası veya CORS engeli. İnternet bağlantınızı kontrol edin veya API anahtarının geçerli olduğundan emin olun.';
                 } else if (error.message.includes('401') || error.message.toLowerCase().includes('api key')) {
                     userFriendlyMessage = 'API anahtarı geçersiz. Lütfen API ayarlarını kontrol edin.';
                 } else if (error.message.includes('429')) {
