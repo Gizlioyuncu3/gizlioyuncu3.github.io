@@ -5,6 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>G3 AI - Profesyonel Asistan</title>
     
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#6366f1">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="G3 AI">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -628,7 +636,6 @@
         .toast i { color: var(--success); }
         .toast.error i { color: var(--danger); }
         
-        /* PROFIL MODAL */
         .profile-modal {
             display: none;
             position: fixed;
@@ -911,7 +918,6 @@
         </div>
     </main>
 
-    <!-- PROFIL MODAL -->
     <div class="profile-modal" id="profileModal">
         <div class="profile-content" style="position: relative;">
             <button class="profile-close" id="profileClose"><i class="fas fa-times"></i></button>
@@ -951,7 +957,6 @@
     </div>
 
     <script>
-        // API AYARLARI
         const API_KEY = "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";
         const API_URL = "https://api.groq.com/openai/v1/chat/completions";
         const MODEL = "llama-3.3-70b-versatile";
@@ -1482,8 +1487,11 @@ KURALLAR:
                 header.className = 'code-header';
                 header.innerHTML = `<span>${lang}</span><button class="copy-code-btn"><i class="fas fa-copy"></i> Kopyala</button>`;
                 wrapper.appendChild(header);
+                
+                // HATA DÜZELTME: Önce wrapper'ı pre'nin yerine koy, sonra pre'yi wrapper'ın içine taşı
+                pre.parentNode.insertBefore(wrapper, pre);
                 wrapper.appendChild(pre);
-                pre.replaceWith(wrapper);
+                
                 header.querySelector('.copy-code-btn').addEventListener('click', (e) => {
                     e.stopPropagation();
                     navigator.clipboard.writeText(code.textContent);
@@ -1536,7 +1544,6 @@ KURALLAR:
                         },
                         body: JSON.stringify({
                             model: MODEL,
-                            // API'ye gönderirken sadece role ve content gönderiyoruz
                             messages: activeChat.messages.map(m => ({ role: m.role, content: m.content })),
                             temperature: 0.7,
                             max_tokens: 800
@@ -1715,7 +1722,6 @@ KURALLAR:
                     },
                     body: JSON.stringify({
                         model: MODEL,
-                        // API'ye gönderirken sadece role ve content gönderiyoruz
                         messages: activeChat.messages.map(m => ({ role: m.role, content: m.content })),
                         temperature: 0.6,
                         max_tokens: 800
@@ -1833,6 +1839,15 @@ KURALLAR:
                 if (window.innerWidth <= 768) overlay.click();
             }
         });
+
+        // PWA - Service Worker Kaydı
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                    .then(reg => console.log('Service Worker kaydedildi:', reg.scope))
+                    .catch(err => console.log('Service Worker hatası:', err));
+            });
+        }
 
         console.log('%c G3 AI ', 'background: #6366f1; color: white; font-size: 20px; padding: 10px; border-radius: 5px;');
         console.log('Muhammed Eren Bayram tarafından geliştirilmiştir.');
