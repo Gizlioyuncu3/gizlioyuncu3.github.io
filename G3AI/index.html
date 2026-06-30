@@ -6,12 +6,12 @@
     <title>G3 AI - Profesyonel Asistan</title>
     
     <!-- PWA Manifest -->
-    <link rel="manifest" href="manifest.json">
+    <link rel="manifest" href="./manifest.json">
     <meta name="theme-color" content="#6366f1">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="G3 AI">
-    <link rel="apple-touch-icon" href="icon-192.png">
+    <link rel="apple-touch-icon" href="./icon-192.png">
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -763,7 +763,7 @@
         <div class="auth-modal">
             <div class="auth-logo">
                 <div class="auth-logo-icon">
-                    <img src="g3.png" alt="G3" onerror="this.style.display='none'; this.parentElement.textContent='G3';">
+                    <img src="./g3.png" alt="G3" onerror="this.style.display='none'; this.parentElement.textContent='G3';">
                 </div>
                 <h2>G3 AI'a Hoş Geldin</h2>
                 <p>Devam etmek için giriş yap veya hesap oluştur</p>
@@ -862,7 +862,7 @@
         <div id="chat-container">
             <div class="welcome-screen" id="welcomeScreen">
                 <div class="welcome-icon">
-                    <img src="g3.png" alt="G3" onerror="this.style.display='none'; this.parentElement.innerHTML='<i class=\'fas fa-bolt\'></i>';">
+                    <img src="./g3.png" alt="G3" onerror="this.style.display='none'; this.parentElement.innerHTML='<i class=\'fas fa-bolt\'></i>';">
                 </div>
                 <h2>Merhaba, nasıl yardımcı olabilirim?</h2>
                 <p>Ben G3, senin yapay zeka asistanın. Aklına gelen her konuda bana soru sorabilir, dosya yükleyebilir veya sesli komut verebilirsin.</p>
@@ -892,7 +892,7 @@
 
             <div class="typing" id="typing-indicator">
                 <div class="typing-avatar">
-                    <img src="g3.png" alt="G3" onerror="this.style.display='none'; this.parentElement.innerHTML='<i class=\'fas fa-bolt\' style=\'color:var(--accent)\'></i>';">
+                    <img src="./g3.png" alt="G3" onerror="this.style.display='none'; this.parentElement.innerHTML='<i class=\'fas fa-bolt\' style=\'color:var(--accent)\'></i>';">
                 </div>
                 <div class="typing-text">G3 düşünüyor</div>
                 <div class="typing-dots">
@@ -957,10 +957,10 @@
     </div>
 
     <script>
-        const API_KEY = "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";
+        const API_KEY = "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";
         const API_URL = "https://api.groq.com/openai/v1/chat/completions";
         const MODEL = "llama-3.3-70b-versatile";
-        const AI_AVATAR_URL = "g3.png";
+        const AI_AVATAR_URL = "./g3.png";
         const GOOGLE_CLIENT_ID = ""; 
 
         const SYSTEM_PROMPT = `Adın G3. Net, yardımcı ve direkt yanıtlar ver. Yanıtlarında Markdown kullanabilirsin (başlıklar, listeler, kod blokları vb.).
@@ -1488,7 +1488,6 @@ KURALLAR:
                 header.innerHTML = `<span>${lang}</span><button class="copy-code-btn"><i class="fas fa-copy"></i> Kopyala</button>`;
                 wrapper.appendChild(header);
                 
-                // HATA DÜZELTME: Önce wrapper'ı pre'nin yerine koy, sonra pre'yi wrapper'ın içine taşı
                 pre.parentNode.insertBefore(wrapper, pre);
                 wrapper.appendChild(pre);
                 
@@ -1840,10 +1839,10 @@ KURALLAR:
             }
         });
 
-        // PWA - Service Worker Kaydı
+        // PWA - Service Worker Kaydı (GitHub Pages alt dizinine uygun)
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js')
+                navigator.serviceWorker.register('./sw.js')
                     .then(reg => console.log('Service Worker kaydedildi:', reg.scope))
                     .catch(err => console.log('Service Worker hatası:', err));
             });
