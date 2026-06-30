@@ -1,21 +1,3 @@
-Bu hata, Groq (ve OpenAI tabanlı) API'lerinin `messages` dizisi içindeki objelerin şemasını katı bir şekilde doğrulamasından kaynaklanmaktadır. API, `role` ve `content` dışındaki ekstra özellikleri (kodunuzda eklediğiniz `attachments` özelliği) desteklemez ve bu yüzden isteği reddeder.
-
-**Çözüm:**
-Mesajları API'ye gönderirken, `activeChat.messages` dizisini sadece `role` ve `content` özelliklerini içerecek şekilde haritalandırarak (map) göndermemiz gerekiyor. Böylece API temiz bir veri alırken, sizin yerel veritabanınızda (localStorage) ve arayüzde `attachments` verisi korunmaya devam eder.
-
-Başka hiçbir şeyi değiştirmeden, sadece API'ye istek attığınız **iki farklı noktayı** (`sendMessage` ve `regenerateResponse` fonksiyonlarındaki `fetch` isteklerini) aşağıdaki gibi güncelledim:
-
-```javascript
-// ESKİ (Hatalı)
-messages: activeChat.messages,
-
-// YENİ (Düzeltilmiş)
-messages: activeChat.messages.map(m => ({ role: m.role, content: m.content })),
-```
-
-İşte hatasız ve çalışır hale getirilmiş tam kodunuz:
-
-```html
 <!DOCTYPE html>
 <html lang="tr">
 <head>
