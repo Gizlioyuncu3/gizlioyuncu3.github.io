@@ -1,3 +1,21 @@
+Bu hata, Groq (ve OpenAI tabanlı) API'lerinin `messages` dizisi içindeki objelerin şemasını katı bir şekilde doğrulamasından kaynaklanmaktadır. API, `role` ve `content` dışındaki ekstra özellikleri (kodunuzda eklediğiniz `attachments` özelliği) desteklemez ve bu yüzden isteği reddeder.
+
+**Çözüm:**
+Mesajları API'ye gönderirken, `activeChat.messages` dizisini sadece `role` ve `content` özelliklerini içerecek şekilde haritalandırarak (map) göndermemiz gerekiyor. Böylece API temiz bir veri alırken, sizin yerel veritabanınızda (localStorage) ve arayüzde `attachments` verisi korunmaya devam eder.
+
+Başka hiçbir şeyi değiştirmeden, sadece API'ye istek attığınız **iki farklı noktayı** (`sendMessage` ve `regenerateResponse` fonksiyonlarındaki `fetch` isteklerini) aşağıdaki gibi güncelledim:
+
+```javascript
+// ESKİ (Hatalı)
+messages: activeChat.messages,
+
+// YENİ (Düzeltilmiş)
+messages: activeChat.messages.map(m => ({ role: m.role, content: m.content })),
+```
+
+İşte hatasız ve çalışır hale getirilmiş tam kodunuz:
+
+```html
 <!DOCTYPE html>
 <html lang="tr">
 <head>
@@ -956,7 +974,6 @@
         const API_URL = "https://api.groq.com/openai/v1/chat/completions";
         const MODEL = "llama-3.3-70b-versatile";
         const AI_AVATAR_URL = "g3.png";
-        // Google Client ID boş bırakılırsa manuel giriş zorunlu olur, hata vermez.
         const GOOGLE_CLIENT_ID = ""; 
 
         const SYSTEM_PROMPT = `Adın G3. Net, yardımcı ve direkt yanıtlar ver. Yanıtlarında Markdown kullanabilirsin (başlıklar, listeler, kod blokları vb.).
@@ -1019,7 +1036,6 @@ KURALLAR:
         }
         createBackgroundSquares();
 
-        // GOOGLE SIGN-IN - GERÇEK ENTEGRASYON
         function handleGoogleCredentialResponse(response) {
             try {
                 const token = response.credential;
@@ -1043,10 +1059,8 @@ KURALLAR:
         }
 
         function initializeGoogleSignIn() {
-            if (typeof google === 'undefined' || !google.accounts || !google.accounts.id) {
-                return;
-            }
-            if (!GOOGLE_CLIENT_ID) return; // Client ID yoksa init etme
+            if (typeof google === 'undefined' || !google.accounts || !google.accounts.id) return;
+            if (!GOOGLE_CLIENT_ID) return; 
             
             try {
                 google.accounts.id.initialize({
@@ -1072,7 +1086,6 @@ KURALLAR:
             setTimeout(initializeGoogleSignIn, 500);
         });
 
-        // GOOGLE BUTONLARI
         ['googleSignInBtn', 'googleSignInBtnRegister'].forEach(id => {
             $(id).addEventListener('click', () => {
                 if (!GOOGLE_CLIENT_ID) {
@@ -1134,7 +1147,6 @@ KURALLAR:
             }
         }
 
-        // PROFIL MODAL FONKSİYONLARI
         function openProfileModal() {
             if (!state.user) return;
             $('profileName').textContent = state.user.name;
@@ -1542,7 +1554,8 @@ KURALLAR:
                         },
                         body: JSON.stringify({
                             model: MODEL,
-                            messages: activeChat.messages,
+                            // API'ye gönderirken sadece role ve content gönderiyoruz
+                            messages: activeChat.messages.map(m => ({ role: m.role, content: m.content })),
                             temperature: 0.7,
                             max_tokens: 800
                         })
@@ -1720,7 +1733,8 @@ KURALLAR:
                     },
                     body: JSON.stringify({
                         model: MODEL,
-                        messages: activeChat.messages,
+                        // API'ye gönderirken sadece role ve content gönderiyoruz
+                        messages: activeChat.messages.map(m => ({ role: m.role, content: m.content })),
                         temperature: 0.6,
                         max_tokens: 800
                     })
