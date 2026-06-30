@@ -50,6 +50,10 @@
             --radius-lg: 16px;
             --radius-xl: 24px;
             --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            --safe-top: env(safe-area-inset-top);
+            --safe-bottom: env(safe-area-inset-bottom);
+            --safe-left: env(safe-area-inset-left);
+            --safe-right: env(safe-area-inset-right);
         }
         [data-theme="light"] {
             --bg-primary: #ffffff;
@@ -78,6 +82,7 @@
             transition: background-color 0.3s, color 0.3s;
             -webkit-font-smoothing: antialiased;
             position: relative;
+            padding: var(--safe-top) var(--safe-right) var(--safe-bottom) var(--safe-left);
         }
         .bg-animation { position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
         .bg-square {
@@ -720,6 +725,16 @@
             color: var(--text-secondary);
         }
 
+        /* RESPONSIVE OPTIMIZATIONS */
+        
+        /* Large tablets and small desktops */
+        @media (max-width: 1024px) {
+            #sidebar { width: 260px; }
+            .message-row { max-width: 80%; }
+            .suggestion-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        /* Tablets and large mobile */
         @media (max-width: 768px) {
             #menu-toggle { display: flex; }
             #sidebar {
@@ -743,15 +758,134 @@
             .welcome-icon { width: 64px; height: 64px; font-size: 1.6rem; }
             .welcome-screen h2 { font-size: 1.4rem; }
             .auth-modal { padding: 28px 24px; }
+            .profile-content { padding: 24px; }
+            .profile-avatar-lg { width: 64px; height: 64px; font-size: 1.5rem; }
+            .profile-info h3 { font-size: 1.1rem; }
         }
+
+        /* Small mobile devices */
         @media (max-width: 480px) {
             .message-actions { opacity: 1; }
             .input-hint { display: none; }
+            .welcome-screen { padding: 24px 16px; gap: 16px; }
+            .welcome-screen h2 { font-size: 1.3rem; }
+            .welcome-screen p { font-size: 0.85rem; }
+            .suggestion-card { padding: 12px; }
+            .suggestion-card h4 { font-size: 0.85rem; }
+            .suggestion-card p { font-size: 0.75rem; }
+            .message { padding: 10px 12px; font-size: 0.88rem; }
+            .message-avatar { width: 26px; height: 26px; }
+            .code-block pre { font-size: 0.8rem; padding: 12px; }
+            .auth-modal { padding: 24px 20px; }
+            .auth-logo h2 { font-size: 1.3rem; }
+            .auth-logo p { font-size: 0.85rem; }
+            .input-group input { padding: 10px 12px 10px 38px; font-size: 0.9rem; }
+            .input-group i { left: 12px; top: 34px; }
+            .auth-btn { padding: 10px; font-size: 0.9rem; }
+            .profile-content { padding: 20px; }
+            .profile-stats { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+            .stat-box { padding: 10px; }
+            .stat-number { font-size: 1.2rem; }
+            .stat-label { font-size: 0.7rem; }
+            .profile-btn { padding: 8px 12px; font-size: 0.85rem; }
+            .toast { bottom: 80px; padding: 10px 16px; font-size: 0.82rem; }
         }
+
+        /* Very small mobile devices */
+        @media (max-width: 360px) {
+            header { padding: 10px 12px; }
+            header h1 { font-size: 0.95rem; }
+            #chat-container { padding: 12px; gap: 12px; }
+            .message { padding: 8px 10px; font-size: 0.85rem; }
+            .message-avatar { width: 24px; height: 24px; }
+            .input-area { padding: 10px 10px 14px; }
+            .input-box { padding: 6px 8px; }
+            .tool-btn { width: 32px; height: 32px; font-size: 0.9rem; }
+            #send-btn { width: 32px; height: 32px; }
+            .welcome-screen { padding: 20px 12px; }
+            .welcome-icon { width: 56px; height: 56px; font-size: 1.4rem; }
+            .welcome-screen h2 { font-size: 1.2rem; }
+            .suggestion-card { padding: 10px; }
+            .auth-modal { padding: 20px 16px; }
+            .auth-logo-icon { width: 50px; height: 50px; font-size: 24px; }
+        }
+
+        /* Landscape mode on mobile */
         @media (max-height: 600px) and (max-width: 768px) {
             .welcome-screen { padding: 20px; gap: 12px; }
             .welcome-icon { width: 48px; height: 48px; font-size: 1.2rem; }
             .suggestion-grid { display: none; }
+            .welcome-screen h2 { font-size: 1.2rem; }
+            .welcome-screen p { font-size: 0.85rem; }
+            .auth-modal { padding: 20px; }
+            .auth-logo { margin-bottom: 16px; }
+        }
+
+        /* Landscape mode on very small devices */
+        @media (max-height: 500px) and (orientation: landscape) {
+            .welcome-screen { padding: 12px; gap: 8px; }
+            .welcome-icon { width: 40px; height: 40px; font-size: 1rem; }
+            .welcome-screen h2 { font-size: 1.1rem; }
+            .welcome-screen p { display: none; }
+            .suggestion-grid { display: none; }
+            .auth-modal { max-height: 90vh; overflow-y: auto; }
+        }
+
+        /* Touch device optimizations */
+        @media (hover: none) and (pointer: coarse) {
+            .tool-btn, .icon-btn, #menu-toggle {
+                min-width: 44px;
+                min-height: 44px;
+            }
+            .action-btn {
+                min-width: 36px;
+                min-height: 36px;
+            }
+            .chat-item {
+                min-height: 44px;
+            }
+            .dropdown-item {
+                min-height: 44px;
+            }
+        }
+
+        /* High DPI displays */
+        @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+            .message {
+                -webkit-font-smoothing: antialiased;
+                -moz-osx-font-smoothing: grayscale;
+            }
+        }
+
+        /* Dark mode preference */
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg-primary: #0f0f12;
+                --bg-secondary: #1a1a1f;
+                --bg-tertiary: #24242b;
+            }
+        }
+
+        /* Reduced motion preference */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+        /* Print styles */
+        @media print {
+            .bg-animation, #sidebar, .input-area, .auth-overlay, .toast, .profile-modal {
+                display: none !important;
+            }
+            #main-view {
+                width: 100%;
+            }
+            .message {
+                page-break-inside: avoid;
+            }
         }
     </style>
 </head>
