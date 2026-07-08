@@ -356,6 +356,20 @@
             transition: var(--transition); flex-shrink: 0;
         }
         .icon-btn:hover { background: var(--bg-hover); color: var(--text-primary); }
+        /* Header profil butonu */
+        .header-profile-btn {
+            width: 36px; height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent), #8b5cf6);
+            display: none;
+            align-items: center; justify-content: center;
+            color: white; font-weight: 600; font-size: 0.85rem;
+            cursor: pointer; transition: var(--transition);
+            flex-shrink: 0; overflow: hidden;
+            border: 2px solid transparent;
+        }
+        .header-profile-btn:hover { border-color: var(--accent); transform: scale(1.05); }
+        .header-profile-btn img { width: 100%; height: 100%; object-fit: cover; }
         #chat-container {
             flex: 1; overflow-y: auto; padding: 24px;
             display: flex; flex-direction: column; gap: 20px;
@@ -661,6 +675,7 @@
             max-width: 460px;
             width: 100%;
             box-shadow: var(--shadow-lg);
+            position: relative;
         }
         .profile-header {
             display: flex;
@@ -725,18 +740,42 @@
             color: var(--text-secondary);
         }
 
+        /* Storage durumu göstergesi */
+        .storage-indicator {
+            position: fixed;
+            bottom: 12px; right: 12px;
+            padding: 4px 10px;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            display: flex; align-items: center; gap: 6px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 100;
+            pointer-events: none;
+        }
+        .storage-indicator.show { opacity: 1; }
+        .storage-indicator .dot-indicator {
+            width: 6px; height: 6px;
+            border-radius: 50%;
+            background: var(--success);
+        }
+        .storage-indicator.warn .dot-indicator { background: var(--warning); }
+        .storage-indicator.error .dot-indicator { background: var(--danger); }
+
         /* RESPONSIVE OPTIMIZATIONS */
         
-        /* Large tablets and small desktops */
         @media (max-width: 1024px) {
             #sidebar { width: 260px; }
             .message-row { max-width: 80%; }
             .suggestion-grid { grid-template-columns: repeat(2, 1fr); }
         }
 
-        /* Tablets and large mobile */
         @media (max-width: 768px) {
             #menu-toggle { display: flex; }
+            .header-profile-btn { display: flex; }
             #sidebar {
                 position: fixed; top: 0; left: 0; height: 100vh;
                 transform: translateX(-100%);
@@ -761,9 +800,19 @@
             .profile-content { padding: 24px; }
             .profile-avatar-lg { width: 64px; height: 64px; font-size: 1.5rem; }
             .profile-info h3 { font-size: 1.1rem; }
+            /* Mobilde profil modalını tam ekran yap */
+            .profile-modal { padding: 0; }
+            .profile-content {
+                max-width: 100%;
+                width: 100%;
+                height: 100%;
+                border-radius: 0;
+                overflow-y: auto;
+                padding: 24px 20px;
+                padding-top: 60px;
+            }
         }
 
-        /* Small mobile devices */
         @media (max-width: 480px) {
             .message-actions { opacity: 1; }
             .input-hint { display: none; }
@@ -782,7 +831,7 @@
             .input-group input { padding: 10px 12px 10px 38px; font-size: 0.9rem; }
             .input-group i { left: 12px; top: 34px; }
             .auth-btn { padding: 10px; font-size: 0.9rem; }
-            .profile-content { padding: 20px; }
+            .profile-content { padding: 20px 16px; padding-top: 56px; }
             .profile-stats { grid-template-columns: repeat(3, 1fr); gap: 8px; }
             .stat-box { padding: 10px; }
             .stat-number { font-size: 1.2rem; }
@@ -791,7 +840,6 @@
             .toast { bottom: 80px; padding: 10px 16px; font-size: 0.82rem; }
         }
 
-        /* Very small mobile devices */
         @media (max-width: 360px) {
             header { padding: 10px 12px; }
             header h1 { font-size: 0.95rem; }
@@ -808,9 +856,9 @@
             .suggestion-card { padding: 10px; }
             .auth-modal { padding: 20px 16px; }
             .auth-logo-icon { width: 50px; height: 50px; font-size: 24px; }
+            .header-profile-btn { width: 32px; height: 32px; font-size: 0.75rem; }
         }
 
-        /* Landscape mode on mobile */
         @media (max-height: 600px) and (max-width: 768px) {
             .welcome-screen { padding: 20px; gap: 12px; }
             .welcome-icon { width: 48px; height: 48px; font-size: 1.2rem; }
@@ -821,7 +869,6 @@
             .auth-logo { margin-bottom: 16px; }
         }
 
-        /* Landscape mode on very small devices */
         @media (max-height: 500px) and (orientation: landscape) {
             .welcome-screen { padding: 12px; gap: 8px; }
             .welcome-icon { width: 40px; height: 40px; font-size: 1rem; }
@@ -831,7 +878,6 @@
             .auth-modal { max-height: 90vh; overflow-y: auto; }
         }
 
-        /* Touch device optimizations */
         @media (hover: none) and (pointer: coarse) {
             .tool-btn, .icon-btn, #menu-toggle {
                 min-width: 44px;
@@ -849,7 +895,6 @@
             }
         }
 
-        /* High DPI displays */
         @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
             .message {
                 -webkit-font-smoothing: antialiased;
@@ -857,16 +902,6 @@
             }
         }
 
-        /* Dark mode preference */
-        @media (prefers-color-scheme: dark) {
-            :root {
-                --bg-primary: #0f0f12;
-                --bg-secondary: #1a1a1f;
-                --bg-tertiary: #24242b;
-            }
-        }
-
-        /* Reduced motion preference */
         @media (prefers-reduced-motion: reduce) {
             *, *::before, *::after {
                 animation-duration: 0.01ms !important;
@@ -875,17 +910,12 @@
             }
         }
 
-        /* Print styles */
         @media print {
-            .bg-animation, #sidebar, .input-area, .auth-overlay, .toast, .profile-modal {
+            .bg-animation, #sidebar, .input-area, .auth-overlay, .toast, .profile-modal, .storage-indicator {
                 display: none !important;
             }
-            #main-view {
-                width: 100%;
-            }
-            .message {
-                page-break-inside: avoid;
-            }
+            #main-view { width: 100%; }
+            .message { page-break-inside: avoid; }
         }
     </style>
 </head>
@@ -990,6 +1020,7 @@
             </div>
             <div class="header-actions">
                 <button class="icon-btn" id="themeToggle" aria-label="Tema Değiştir"><i class="fas fa-moon"></i></button>
+                <button class="header-profile-btn" id="headerProfileBtn" title="Profil">K</button>
             </div>
         </header>
 
@@ -1053,7 +1084,7 @@
     </main>
 
     <div class="profile-modal" id="profileModal">
-        <div class="profile-content" style="position: relative;">
+        <div class="profile-content">
             <button class="profile-close" id="profileClose"><i class="fas fa-times"></i></button>
             <div class="profile-header">
                 <div class="profile-avatar-lg" id="profileAvatarLg">K</div>
@@ -1090,8 +1121,14 @@
         <span id="toastText">Kopyalandı</span>
     </div>
 
+    <!-- Depolama durumu göstergesi -->
+    <div class="storage-indicator" id="storageIndicator">
+        <div class="dot-indicator"></div>
+        <span id="storageText">Kaydedildi</span>
+    </div>
+
     <script>
-        const API_KEY = "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";
+        const API_KEY = "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";
         const API_URL = "https://api.groq.com/openai/v1/chat/completions";
         const MODEL = "llama-3.3-70b-versatile";
         const AI_AVATAR_URL = "./g3.png";
@@ -1125,6 +1162,9 @@ KURALLAR:
         const toast = $('toast');
         const toastText = $('toastText');
         const profileModal = $('profileModal');
+        const headerProfileBtn = $('headerProfileBtn');
+        const storageIndicator = $('storageIndicator');
+        const storageText = $('storageText');
 
         let state = {
             chats: [],
@@ -1133,8 +1173,129 @@ KURALLAR:
             theme: 'dark',
             attachments: [],
             isRecording: false,
-            joinDate: null
+            joinDate: null,
+            saveDebounceTimer: null,
+            storagePersisted: false
         };
+
+        // ============================================
+        // DEPOLAMA SİSTEMİ - GÜÇLENDİRİLMİŞ
+        // ============================================
+
+        // Kalıcı depolama iste (PWA için kritik - iOS'ta 7 gün sonra silinmeyi önler)
+        async function requestPersistentStorage() {
+            if (!navigator.storage || !navigator.storage.persist) {
+                updateStorageIndicator('info', 'Depolama aktif');
+                return;
+            }
+            try {
+                const persisted = await navigator.storage.persisted();
+                state.storagePersisted = persisted;
+                if (!persisted) {
+                    const granted = await navigator.storage.persist();
+                    state.storagePersisted = granted;
+                    if (granted) {
+                        updateStorageIndicator('success', 'Kalıcı depolama aktif');
+                    } else {
+                        updateStorageIndicator('warn', 'Depolama geçici olabilir');
+                    }
+                } else {
+                    updateStorageIndicator('success', 'Kalıcı depolama aktif');
+                }
+            } catch (e) {
+                console.warn('Persistent storage hatası:', e);
+                updateStorageIndicator('warn', 'Depolama durumu belirsiz');
+            }
+        }
+
+        function updateStorageIndicator(type, text) {
+            if (!storageIndicator) return;
+            storageIndicator.className = 'storage-indicator show';
+            if (type === 'warn') storageIndicator.classList.add('warn');
+            if (type === 'error') storageIndicator.classList.add('error');
+            storageText.textContent = text;
+            setTimeout(() => storageIndicator.classList.remove('show'), 3000);
+        }
+
+        // Güvenli localStorage yazma - birden fazla yöntemle dener
+        function safeSaveToStorage(key, value) {
+            const serialized = typeof value === 'string' ? value : JSON.stringify(value);
+            
+            // Yöntem 1: localStorage
+            try {
+                localStorage.setItem(key, serialized);
+                return true;
+            } catch (e) {
+                console.warn('localStorage yazma hatası:', e);
+            }
+            
+            // Yöntem 2: sessionStorage (fallback)
+            try {
+                sessionStorage.setItem(key, serialized);
+                updateStorageIndicator('warn', 'Geçici depolama kullanılıyor');
+                return true;
+            } catch (e2) {
+                console.warn('sessionStorage yazma hatası:', e2);
+            }
+            
+            // Yöntem 3: Cookie fallback (son çare - 7 gün)
+            try {
+                const escaped = encodeURIComponent(serialized);
+                document.cookie = `${key}=${escaped}; max-age=604800; path=/; SameSite=Lax`;
+                updateStorageIndicator('warn', 'Çerez depolaması kullanılıyor');
+                return true;
+            } catch (e3) {
+                console.error('Tüm depolama yöntemleri başarısız:', e3);
+                updateStorageIndicator('error', 'Depolama hatası!');
+                return false;
+            }
+        }
+
+        // Güvenli localStorage okuma
+        function safeLoadFromStorage(key) {
+            // localStorage'dan dene
+            try {
+                const val = localStorage.getItem(key);
+                if (val !== null) return val;
+            } catch (e) {}
+            
+            // sessionStorage'dan dene
+            try {
+                const val = sessionStorage.getItem(key);
+                if (val !== null) return val;
+            } catch (e) {}
+            
+            // Cookie'den dene
+            try {
+                const cookies = document.cookie.split(';');
+                for (let c of cookies) {
+                    c = c.trim();
+                    if (c.startsWith(key + '=')) {
+                        return decodeURIComponent(c.substring(key.length + 1));
+                    }
+                }
+            } catch (e) {}
+            
+            return null;
+        }
+
+        // Debounced save - çok sık kaydetmeyi önler
+        function debouncedSave() {
+            if (state.saveDebounceTimer) clearTimeout(state.saveDebounceTimer);
+            state.saveDebounceTimer = setTimeout(() => {
+                saveChats();
+                saveUserState();
+            }, 300);
+        }
+
+        function saveUserState() {
+            if (state.user) {
+                safeSaveToStorage('g3_user', state.user);
+            }
+            if (state.joinDate) {
+                safeSaveToStorage('g3_joinDate', String(state.joinDate));
+            }
+        }
 
         function createBackgroundSquares() {
             const container = $('bgAnimation');
@@ -1168,8 +1329,7 @@ KURALLAR:
                     isGoogleUser: true
                 };
                 if (!state.joinDate) state.joinDate = Date.now();
-                localStorage.setItem('g3_user', JSON.stringify(state.user));
-                localStorage.setItem('g3_joinDate', state.joinDate);
+                saveUserState();
                 updateUserUI();
                 authOverlay.classList.remove('active');
                 showToast('Google ile giriş yapıldı');
@@ -1205,6 +1365,7 @@ KURALLAR:
 
         window.addEventListener('load', () => {
             setTimeout(initializeGoogleSignIn, 500);
+            requestPersistentStorage();
         });
 
         ['googleSignInBtn', 'googleSignInBtnRegister'].forEach(id => {
@@ -1238,8 +1399,7 @@ KURALLAR:
                 avatar: (name || email).charAt(0).toUpperCase()
             };
             if (!state.joinDate) state.joinDate = Date.now();
-            localStorage.setItem('g3_user', JSON.stringify(state.user));
-            localStorage.setItem('g3_joinDate', state.joinDate);
+            saveUserState();
             updateUserUI();
             authOverlay.classList.remove('active');
             showToast('Hoş geldin! 👋');
@@ -1250,8 +1410,12 @@ KURALLAR:
 
         $('logoutBtn').addEventListener('click', () => {
             state.user = null;
-            localStorage.removeItem('g3_user');
-            localStorage.removeItem('g3_joinDate');
+            try {
+                localStorage.removeItem('g3_user');
+                localStorage.removeItem('g3_joinDate');
+                sessionStorage.removeItem('g3_user');
+                sessionStorage.removeItem('g3_joinDate');
+            } catch (e) {}
             userDropdown.classList.remove('active');
             authOverlay.classList.add('active');
         });
@@ -1265,6 +1429,17 @@ KURALLAR:
                 avatarEl.innerHTML = `<img src="${state.user.avatar}" alt="${state.user.name}">`;
             } else {
                 avatarEl.textContent = state.user.avatar || 'K';
+            }
+            // Header profil butonunu da güncelle
+            updateHeaderProfileBtn();
+        }
+
+        function updateHeaderProfileBtn() {
+            if (!headerProfileBtn || !state.user) return;
+            if (state.user.avatar && (state.user.avatar.startsWith('http') || state.user.avatar.startsWith('data:'))) {
+                headerProfileBtn.innerHTML = `<img src="${state.user.avatar}" alt="${state.user.name}">`;
+            } else {
+                headerProfileBtn.textContent = state.user.avatar || 'K';
             }
         }
 
@@ -1302,12 +1477,15 @@ KURALLAR:
         });
 
         $('openProfileBtn').addEventListener('click', openProfileModal);
+        
+        // Header profil butonu - mobilde profil erişimi
+        headerProfileBtn.addEventListener('click', openProfileModal);
 
         $('editNameBtn').addEventListener('click', () => {
             const newName = prompt('Yeni adınız:', state.user?.name || '');
             if (newName && newName.trim()) {
                 state.user.name = newName.trim();
-                localStorage.setItem('g3_user', JSON.stringify(state.user));
+                saveUserState();
                 updateUserUI();
                 $('profileName').textContent = state.user.name;
                 showToast('İsim güncellendi');
@@ -1338,7 +1516,7 @@ KURALLAR:
             if (confirm('TÜM SOHBETLER silinecek. Emin misiniz?')) {
                 state.chats = [];
                 state.currentChatId = null;
-                localStorage.removeItem('g3_chats');
+                safeSaveToStorage('g3_chats', []);
                 createNewChat();
                 profileModal.classList.remove('active');
                 showToast('Tüm veriler silindi');
@@ -1348,24 +1526,29 @@ KURALLAR:
         $('clearAllBtn').addEventListener('click', () => {
             if (confirm('Tüm sohbetler silinecek. Emin misiniz?')) {
                 state.chats = [];
-                localStorage.removeItem('g3_chats');
+                safeSaveToStorage('g3_chats', []);
                 createNewChat();
                 userDropdown.classList.remove('active');
                 showToast('Tüm sohbetler silindi');
             }
         });
 
-        const savedUser = localStorage.getItem('g3_user');
-        const savedJoinDate = localStorage.getItem('g3_joinDate');
+        // Kullanıcı ve sohbet verilerini yükle
+        const savedUser = safeLoadFromStorage('g3_user');
+        const savedJoinDate = safeLoadFromStorage('g3_joinDate');
         if (savedUser) {
-            state.user = JSON.parse(savedUser);
-            state.joinDate = savedJoinDate ? parseInt(savedJoinDate) : Date.now();
-            updateUserUI();
+            try {
+                state.user = JSON.parse(savedUser);
+                state.joinDate = savedJoinDate ? parseInt(savedJoinDate) : Date.now();
+                updateUserUI();
+            } catch (e) {
+                console.warn('Kullanıcı verisi okunamadı:', e);
+            }
         } else {
             setTimeout(() => authOverlay.classList.add('active'), 300);
         }
 
-        const savedTheme = localStorage.getItem('g3_theme') || 'dark';
+        const savedTheme = safeLoadFromStorage('g3_theme') || 'dark';
         document.documentElement.setAttribute('data-theme', savedTheme);
         state.theme = savedTheme;
         updateThemeIcon();
@@ -1373,14 +1556,14 @@ KURALLAR:
         themeToggle.addEventListener('click', () => {
             state.theme = state.theme === 'dark' ? 'light' : 'dark';
             document.documentElement.setAttribute('data-theme', state.theme);
-            localStorage.setItem('g3_theme', state.theme);
+            safeSaveToStorage('g3_theme', state.theme);
             updateThemeIcon();
         });
 
         $('themeToggleDropdown').addEventListener('click', () => {
             state.theme = state.theme === 'dark' ? 'light' : 'dark';
             document.documentElement.setAttribute('data-theme', state.theme);
-            localStorage.setItem('g3_theme', state.theme);
+            safeSaveToStorage('g3_theme', state.theme);
             updateThemeIcon();
             userDropdown.classList.remove('active');
         });
@@ -1510,11 +1693,13 @@ KURALLAR:
         }
 
         function saveChats() {
-            try { localStorage.setItem('g3_chats', JSON.stringify(state.chats)); }
-            catch (e) { console.warn('Sohbet kaydedilemedi:', e); }
+            const success = safeSaveToStorage('g3_chats', state.chats);
+            if (success) {
+                updateStorageIndicator('success', 'Sohbetler kaydedildi');
+            }
         }
 
-        const savedChats = localStorage.getItem('g3_chats');
+        const savedChats = safeLoadFromStorage('g3_chats');
         if (savedChats) {
             try {
                 state.chats = JSON.parse(savedChats);
@@ -1523,7 +1708,10 @@ KURALLAR:
                     renderChatList();
                     loadChat(state.currentChatId);
                 } else { createNewChat(); }
-            } catch (e) { createNewChat(); }
+            } catch (e) { 
+                console.warn('Sohbet verisi okunamadı:', e);
+                createNewChat(); 
+            }
         } else { createNewChat(); }
 
         function appendMessageUI(text, sender, animate = true, attachments = []) {
@@ -1843,6 +2031,9 @@ KURALLAR:
                 attachments: currentAttachments
             });
 
+            // Mesaj eklendi - hemen kaydet
+            saveChats();
+
             typingIndicator.classList.add('active');
             chatContainer.scrollTop = chatContainer.scrollHeight;
 
@@ -1973,7 +2164,58 @@ KURALLAR:
             }
         });
 
-        // PWA - Service Worker Kaydı (GitHub Pages alt dizinine uygun)
+        // ============================================
+        // KRİTİK: UYGULAMA KAPANIRKEN KAYDETME
+        // ============================================
+        
+        // beforeunload - Tarayıcı sekmesi/penceresi kapanırken
+        window.addEventListener('beforeunload', (e) => {
+            saveChats();
+            saveUserState();
+        });
+
+        // pagehide - Mobil tarayıcılarda ve PWA'da kritik
+        // iOS Safari'de beforeunload yerine bu çalışır
+        window.addEventListener('pagehide', (e) => {
+            saveChats();
+            saveUserState();
+        });
+
+        // visibilitychange - Sekme gizlendiğinde kaydet
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'hidden') {
+                saveChats();
+                saveUserState();
+            }
+        });
+
+        // freeze - Modern tarayıcılarda sekme dondurulduğunda
+        if ('onfreeze' in document) {
+            document.addEventListener('freeze', () => {
+                saveChats();
+                saveUserState();
+            });
+        }
+
+        // Periyodik otomatik kaydetme (her 30 saniyede)
+        setInterval(() => {
+            if (state.chats.length > 0) {
+                saveChats();
+            }
+        }, 30000);
+
+        // Online/offline durumu
+        window.addEventListener('online', () => {
+            showToast('İnternet bağlantısı geri geldi');
+            saveChats();
+        });
+
+        window.addEventListener('offline', () => {
+            showToast('İnternet bağlantısı kesildi - Veriler yerel olarak kaydedildi', true);
+            saveChats();
+        });
+
+        // PWA - Service Worker Kaydı
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('./sw.js')
