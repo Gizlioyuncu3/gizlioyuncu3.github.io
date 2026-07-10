@@ -356,7 +356,6 @@
             transition: var(--transition); flex-shrink: 0;
         }
         .icon-btn:hover { background: var(--bg-hover); color: var(--text-primary); }
-        /* Header profil butonu */
         .header-profile-btn {
             width: 36px; height: 36px;
             border-radius: 50%;
@@ -740,7 +739,6 @@
             color: var(--text-secondary);
         }
 
-        /* Storage durumu göstergesi */
         .storage-indicator {
             position: fixed;
             bottom: 12px; right: 12px;
@@ -765,8 +763,27 @@
         .storage-indicator.warn .dot-indicator { background: var(--warning); }
         .storage-indicator.error .dot-indicator { background: var(--danger); }
 
-        /* RESPONSIVE OPTIMIZATIONS */
-        
+        /* Chat Footer - İstatistikler */
+        .chat-footer {
+            text-align: center;
+            padding: 16px 12px;
+            color: var(--text-muted);
+            font-size: 0.78rem;
+            border-top: 1px solid var(--border);
+            margin-top: 12px;
+            line-height: 1.5;
+            opacity: 0.85;
+        }
+        .chat-footer i {
+            color: var(--accent);
+            margin-right: 6px;
+            font-size: 0.75rem;
+        }
+        .chat-footer strong {
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+
         @media (max-width: 1024px) {
             #sidebar { width: 260px; }
             .message-row { max-width: 80%; }
@@ -800,7 +817,6 @@
             .profile-content { padding: 24px; }
             .profile-avatar-lg { width: 64px; height: 64px; font-size: 1.5rem; }
             .profile-info h3 { font-size: 1.1rem; }
-            /* Mobilde profil modalını tam ekran yap */
             .profile-modal { padding: 0; }
             .profile-content {
                 max-width: 100%;
@@ -811,6 +827,7 @@
                 padding: 24px 20px;
                 padding-top: 60px;
             }
+            .chat-footer { font-size: 0.72rem; padding: 12px 10px; }
         }
 
         @media (max-width: 480px) {
@@ -838,6 +855,7 @@
             .stat-label { font-size: 0.7rem; }
             .profile-btn { padding: 8px 12px; font-size: 0.85rem; }
             .toast { bottom: 80px; padding: 10px 16px; font-size: 0.82rem; }
+            .chat-footer { font-size: 0.68rem; }
         }
 
         @media (max-width: 360px) {
@@ -1066,6 +1084,12 @@
                     <div class="dot"></div>
                 </div>
             </div>
+
+            <!-- İstatistik Footer -->
+            <div class="chat-footer" id="chatFooter">
+                <i class="fas fa-chart-line"></i>
+                <span id="chatFooterText">G3 yapay zekamız ile yapılan konuşma sayısı: 0</span>
+            </div>
         </div>
 
         <div class="input-area">
@@ -1121,7 +1145,6 @@
         <span id="toastText">Kopyalandı</span>
     </div>
 
-    <!-- Depolama durumu göstergesi -->
     <div class="storage-indicator" id="storageIndicator">
         <div class="dot-indicator"></div>
         <span id="storageText">Kaydedildi</span>
@@ -1165,6 +1188,7 @@ KURALLAR:
         const headerProfileBtn = $('headerProfileBtn');
         const storageIndicator = $('storageIndicator');
         const storageText = $('storageText');
+        const chatFooterText = $('chatFooterText');
 
         let state = {
             chats: [],
@@ -1173,40 +1197,12 @@ KURALLAR:
             theme: 'dark',
             attachments: [],
             isRecording: false,
-            joinDate: null,
-            saveDebounceTimer: null,
-            storagePersisted: false
+            joinDate: null
         };
 
         // ============================================
-        // DEPOLAMA SİSTEMİ - GÜÇLENDİRİLMİŞ
+        // GÜVENLİ DEPOLAMA SİSTEMİ - BASİT VE ETKİLİ
         // ============================================
-
-        // Kalıcı depolama iste (PWA için kritik - iOS'ta 7 gün sonra silinmeyi önler)
-        async function requestPersistentStorage() {
-            if (!navigator.storage || !navigator.storage.persist) {
-                updateStorageIndicator('info', 'Depolama aktif');
-                return;
-            }
-            try {
-                const persisted = await navigator.storage.persisted();
-                state.storagePersisted = persisted;
-                if (!persisted) {
-                    const granted = await navigator.storage.persist();
-                    state.storagePersisted = granted;
-                    if (granted) {
-                        updateStorageIndicator('success', 'Kalıcı depolama aktif');
-                    } else {
-                        updateStorageIndicator('warn', 'Depolama geçici olabilir');
-                    }
-                } else {
-                    updateStorageIndicator('success', 'Kalıcı depolama aktif');
-                }
-            } catch (e) {
-                console.warn('Persistent storage hatası:', e);
-                updateStorageIndicator('warn', 'Depolama durumu belirsiz');
-            }
-        }
 
         function updateStorageIndicator(type, text) {
             if (!storageIndicator) return;
@@ -1214,86 +1210,94 @@ KURALLAR:
             if (type === 'warn') storageIndicator.classList.add('warn');
             if (type === 'error') storageIndicator.classList.add('error');
             storageText.textContent = text;
-            setTimeout(() => storageIndicator.classList.remove('show'), 3000);
+            setTimeout(() => storageIndicator.classList.remove('show'), 2500);
         }
 
-        // Güvenli localStorage yazma - birden fazla yöntemle dener
-        function safeSaveToStorage(key, value) {
-            const serialized = typeof value === 'string' ? value : JSON.stringify(value);
-            
-            // Yöntem 1: localStorage
+        // Sohbetleri kaydet - BOŞSA KAYDETME!
+        function saveChats() {
+            if (!state.chats || state.chats.length === 0) {
+                return; // Boş dizi kaydetme!
+            }
             try {
-                localStorage.setItem(key, serialized);
+                const data = JSON.stringify(state.chats);
+                localStorage.setItem('g3_chats', data);
+                updateStorageIndicator('success', 'Sohbetler kaydedildi');
                 return true;
             } catch (e) {
-                console.warn('localStorage yazma hatası:', e);
-            }
-            
-            // Yöntem 2: sessionStorage (fallback)
-            try {
-                sessionStorage.setItem(key, serialized);
-                updateStorageIndicator('warn', 'Geçici depolama kullanılıyor');
-                return true;
-            } catch (e2) {
-                console.warn('sessionStorage yazma hatası:', e2);
-            }
-            
-            // Yöntem 3: Cookie fallback (son çare - 7 gün)
-            try {
-                const escaped = encodeURIComponent(serialized);
-                document.cookie = `${key}=${escaped}; max-age=604800; path=/; SameSite=Lax`;
-                updateStorageIndicator('warn', 'Çerez depolaması kullanılıyor');
-                return true;
-            } catch (e3) {
-                console.error('Tüm depolama yöntemleri başarısız:', e3);
-                updateStorageIndicator('error', 'Depolama hatası!');
+                console.error('Sohbet kaydetme hatası:', e);
+                updateStorageIndicator('error', 'Kaydetme hatası!');
                 return false;
             }
         }
 
-        // Güvenli localStorage okuma
-        function safeLoadFromStorage(key) {
-            // localStorage'dan dene
+        // Sohbetleri yükle
+        function loadChats() {
             try {
-                const val = localStorage.getItem(key);
-                if (val !== null) return val;
-            } catch (e) {}
-            
-            // sessionStorage'dan dene
-            try {
-                const val = sessionStorage.getItem(key);
-                if (val !== null) return val;
-            } catch (e) {}
-            
-            // Cookie'den dene
-            try {
-                const cookies = document.cookie.split(';');
-                for (let c of cookies) {
-                    c = c.trim();
-                    if (c.startsWith(key + '=')) {
-                        return decodeURIComponent(c.substring(key.length + 1));
+                const data = localStorage.getItem('g3_chats');
+                if (data) {
+                    const parsed = JSON.parse(data);
+                    if (Array.isArray(parsed) && parsed.length > 0) {
+                        return parsed;
                     }
                 }
-            } catch (e) {}
-            
+            } catch (e) {
+                console.error('Sohbet yükleme hatası:', e);
+            }
             return null;
         }
 
-        // Debounced save - çok sık kaydetmeyi önler
-        function debouncedSave() {
-            if (state.saveDebounceTimer) clearTimeout(state.saveDebounceTimer);
-            state.saveDebounceTimer = setTimeout(() => {
-                saveChats();
-                saveUserState();
-            }, 300);
+        // Kullanıcı durumunu kaydet
+        function saveUserState() {
+            try {
+                if (state.user) {
+                    localStorage.setItem('g3_user', JSON.stringify(state.user));
+                }
+                if (state.joinDate) {
+                    localStorage.setItem('g3_joinDate', String(state.joinDate));
+                }
+            } catch (e) {
+                console.error('Kullanıcı kaydetme hatası:', e);
+            }
         }
 
-        function saveUserState() {
-            if (state.user) {
-                safeSaveToStorage('g3_user', state.user);
+        // ============================================
+        // İSTATİSTİK SİSTEMİ
+        // ============================================
+
+        // Kayıtlı kullanıcı sayacını artır (her yeni kayıtta)
+        function incrementUserCount() {
+            try {
+                const current = parseInt(localStorage.getItem('g3_total_users') || '0');
+                localStorage.setItem('g3_total_users', String(current + 1));
+            } catch (e) {
+                console.error('Kullanıcı sayacı hatası:', e);
             }
-            if (state.joinDate) {
-                safeSaveToStorage('g3_joinDate', String(state.joinDate));
+        }
+
+        // Konuşma sayacını artır (her mesaj gönderiminde)
+        function incrementConversationCount() {
+            try {
+                const current = parseInt(localStorage.getItem('g3_total_conversations') || '0');
+                localStorage.setItem('g3_total_conversations', String(current + 1));
+            } catch (e) {
+                console.error('Konuşma sayacı hatası:', e);
+            }
+        }
+
+        // Chat footer'ı güncelle - rastgele bir istatistik göster
+        function updateChatFooter() {
+            if (!chatFooterText) return;
+            
+            const totalUsers = parseInt(localStorage.getItem('g3_total_users') || '1');
+            const totalConversations = parseInt(localStorage.getItem('g3_total_conversations') || '0');
+            
+            // Rastgele birini seç
+            const randomChoice = Math.random() < 0.5 ? 'users' : 'conversations';
+            
+            if (randomChoice === 'users') {
+                chatFooterText.innerHTML = `<i class="fas fa-users"></i> G3 yapay zekamıza kayıtlı kullanıcı sayısı: <strong>${totalUsers.toLocaleString('tr-TR')}</strong>`;
+            } else {
+                chatFooterText.innerHTML = `<i class="fas fa-comments"></i> G3 yapay zekamız ile yapılan konuşma sayısı: <strong>${totalConversations.toLocaleString('tr-TR')}</strong>`;
             }
         }
 
@@ -1330,7 +1334,9 @@ KURALLAR:
                 };
                 if (!state.joinDate) state.joinDate = Date.now();
                 saveUserState();
+                incrementUserCount(); // Yeni kullanıcı say
                 updateUserUI();
+                updateChatFooter(); // İstatistikleri güncelle
                 authOverlay.classList.remove('active');
                 showToast('Google ile giriş yapıldı');
             } catch (error) {
@@ -1365,7 +1371,6 @@ KURALLAR:
 
         window.addEventListener('load', () => {
             setTimeout(initializeGoogleSignIn, 500);
-            requestPersistentStorage();
         });
 
         ['googleSignInBtn', 'googleSignInBtnRegister'].forEach(id => {
@@ -1400,7 +1405,11 @@ KURALLAR:
             };
             if (!state.joinDate) state.joinDate = Date.now();
             saveUserState();
+            if (isRegister) {
+                incrementUserCount(); // Yeni kayıt say
+            }
             updateUserUI();
+            updateChatFooter(); // İstatistikleri güncelle
             authOverlay.classList.remove('active');
             showToast('Hoş geldin! 👋');
         }
@@ -1413,8 +1422,6 @@ KURALLAR:
             try {
                 localStorage.removeItem('g3_user');
                 localStorage.removeItem('g3_joinDate');
-                sessionStorage.removeItem('g3_user');
-                sessionStorage.removeItem('g3_joinDate');
             } catch (e) {}
             userDropdown.classList.remove('active');
             authOverlay.classList.add('active');
@@ -1430,7 +1437,6 @@ KURALLAR:
             } else {
                 avatarEl.textContent = state.user.avatar || 'K';
             }
-            // Header profil butonunu da güncelle
             updateHeaderProfileBtn();
         }
 
@@ -1477,8 +1483,6 @@ KURALLAR:
         });
 
         $('openProfileBtn').addEventListener('click', openProfileModal);
-        
-        // Header profil butonu - mobilde profil erişimi
         headerProfileBtn.addEventListener('click', openProfileModal);
 
         $('editNameBtn').addEventListener('click', () => {
@@ -1516,7 +1520,7 @@ KURALLAR:
             if (confirm('TÜM SOHBETLER silinecek. Emin misiniz?')) {
                 state.chats = [];
                 state.currentChatId = null;
-                safeSaveToStorage('g3_chats', []);
+                try { localStorage.removeItem('g3_chats'); } catch (e) {}
                 createNewChat();
                 profileModal.classList.remove('active');
                 showToast('Tüm veriler silindi');
@@ -1526,16 +1530,16 @@ KURALLAR:
         $('clearAllBtn').addEventListener('click', () => {
             if (confirm('Tüm sohbetler silinecek. Emin misiniz?')) {
                 state.chats = [];
-                safeSaveToStorage('g3_chats', []);
+                try { localStorage.removeItem('g3_chats'); } catch (e) {}
                 createNewChat();
                 userDropdown.classList.remove('active');
                 showToast('Tüm sohbetler silindi');
             }
         });
 
-        // Kullanıcı ve sohbet verilerini yükle
-        const savedUser = safeLoadFromStorage('g3_user');
-        const savedJoinDate = safeLoadFromStorage('g3_joinDate');
+        // VERİLERİ YÜKLE - ÖNCE SOHBETLERİ YÜKLE
+        const savedUser = localStorage.getItem('g3_user');
+        const savedJoinDate = localStorage.getItem('g3_joinDate');
         if (savedUser) {
             try {
                 state.user = JSON.parse(savedUser);
@@ -1548,7 +1552,7 @@ KURALLAR:
             setTimeout(() => authOverlay.classList.add('active'), 300);
         }
 
-        const savedTheme = safeLoadFromStorage('g3_theme') || 'dark';
+        const savedTheme = localStorage.getItem('g3_theme') || 'dark';
         document.documentElement.setAttribute('data-theme', savedTheme);
         state.theme = savedTheme;
         updateThemeIcon();
@@ -1556,14 +1560,14 @@ KURALLAR:
         themeToggle.addEventListener('click', () => {
             state.theme = state.theme === 'dark' ? 'light' : 'dark';
             document.documentElement.setAttribute('data-theme', state.theme);
-            safeSaveToStorage('g3_theme', state.theme);
+            try { localStorage.setItem('g3_theme', state.theme); } catch (e) {}
             updateThemeIcon();
         });
 
         $('themeToggleDropdown').addEventListener('click', () => {
             state.theme = state.theme === 'dark' ? 'light' : 'dark';
             document.documentElement.setAttribute('data-theme', state.theme);
-            safeSaveToStorage('g3_theme', state.theme);
+            try { localStorage.setItem('g3_theme', state.theme); } catch (e) {}
             updateThemeIcon();
             userDropdown.classList.remove('active');
         });
@@ -1605,7 +1609,7 @@ KURALLAR:
             renderChatList();
             clearChatUI();
             welcomeScreen.style.display = 'flex';
-            saveChats();
+            // saveChats() burada çağrılmasın - sadece mesaj gönderildiğinde kaydedilsin
         }
 
         newChatBtn.addEventListener('click', () => {
@@ -1615,7 +1619,7 @@ KURALLAR:
 
         function clearChatUI() {
             Array.from(chatContainer.children).forEach(child => {
-                if (child !== welcomeScreen && child !== typingIndicator) child.remove();
+                if (child !== welcomeScreen && child !== typingIndicator && child.id !== 'chatFooter') child.remove();
             });
             typingIndicator.classList.remove('active');
         }
@@ -1692,27 +1696,23 @@ KURALLAR:
             if (window.innerWidth <= 768) overlay.click();
         }
 
-        function saveChats() {
-            const success = safeSaveToStorage('g3_chats', state.chats);
-            if (success) {
-                updateStorageIndicator('success', 'Sohbetler kaydedildi');
-            }
-        }
-
-        const savedChats = safeLoadFromStorage('g3_chats');
+        // SOHBETLERİ YÜKLE - BAŞLANGIÇTA
+        const savedChats = loadChats();
         if (savedChats) {
-            try {
-                state.chats = JSON.parse(savedChats);
-                if (state.chats.length > 0) {
-                    state.currentChatId = state.chats[0].id;
-                    renderChatList();
-                    loadChat(state.currentChatId);
-                } else { createNewChat(); }
-            } catch (e) { 
-                console.warn('Sohbet verisi okunamadı:', e);
+            state.chats = savedChats;
+            if (state.chats.length > 0) {
+                state.currentChatId = state.chats[0].id;
+                renderChatList();
+                loadChat(state.currentChatId);
+            } else { 
                 createNewChat(); 
             }
-        } else { createNewChat(); }
+        } else { 
+            createNewChat(); 
+        }
+
+        // İstatistikleri güncelle - uygulama açıldığında
+        updateChatFooter();
 
         function appendMessageUI(text, sender, animate = true, attachments = []) {
             welcomeScreen.style.display = 'none';
@@ -2031,7 +2031,11 @@ KURALLAR:
                 attachments: currentAttachments
             });
 
-            // Mesaj eklendi - hemen kaydet
+            // Konuşma sayacını artır
+            incrementConversationCount();
+            updateChatFooter(); // İstatistiği güncelle
+
+            // HEMEN KAYDET
             saveChats();
 
             typingIndicator.classList.add('active');
@@ -2075,7 +2079,7 @@ KURALLAR:
                 typingIndicator.classList.remove('active');
                 appendMessageUI(aiReply, 'ai');
                 activeChat.messages.push({ role: 'assistant', content: aiReply });
-                saveChats();
+                saveChats(); // AI yanıtı da kaydet
             } catch (error) {
                 console.error('Mesaj gönderme hatası:', error);
                 typingIndicator.classList.remove('active');
@@ -2169,50 +2173,75 @@ KURALLAR:
         // ============================================
         
         // beforeunload - Tarayıcı sekmesi/penceresi kapanırken
-        window.addEventListener('beforeunload', (e) => {
-            saveChats();
-            saveUserState();
+        window.addEventListener('beforeunload', () => {
+            if (state.chats && state.chats.length > 0) {
+                try {
+                    localStorage.setItem('g3_chats', JSON.stringify(state.chats));
+                } catch (e) {}
+            }
+            if (state.user) {
+                try {
+                    localStorage.setItem('g3_user', JSON.stringify(state.user));
+                } catch (e) {}
+            }
         });
 
         // pagehide - Mobil tarayıcılarda ve PWA'da kritik
-        // iOS Safari'de beforeunload yerine bu çalışır
-        window.addEventListener('pagehide', (e) => {
-            saveChats();
-            saveUserState();
+        window.addEventListener('pagehide', () => {
+            if (state.chats && state.chats.length > 0) {
+                try {
+                    localStorage.setItem('g3_chats', JSON.stringify(state.chats));
+                } catch (e) {}
+            }
+            if (state.user) {
+                try {
+                    localStorage.setItem('g3_user', JSON.stringify(state.user));
+                } catch (e) {}
+            }
         });
 
         // visibilitychange - Sekme gizlendiğinde kaydet
         document.addEventListener('visibilitychange', () => {
             if (document.visibilityState === 'hidden') {
-                saveChats();
-                saveUserState();
+                if (state.chats && state.chats.length > 0) {
+                    try {
+                        localStorage.setItem('g3_chats', JSON.stringify(state.chats));
+                    } catch (e) {}
+                }
+                if (state.user) {
+                    try {
+                        localStorage.setItem('g3_user', JSON.stringify(state.user));
+                    } catch (e) {}
+                }
             }
         });
 
-        // freeze - Modern tarayıcılarda sekme dondurulduğunda
-        if ('onfreeze' in document) {
-            document.addEventListener('freeze', () => {
-                saveChats();
-                saveUserState();
-            });
-        }
-
-        // Periyodik otomatik kaydetme (her 30 saniyede)
+        // Periyodik otomatik kaydetme (her 15 saniyede)
         setInterval(() => {
-            if (state.chats.length > 0) {
-                saveChats();
+            if (state.chats && state.chats.length > 0) {
+                try {
+                    localStorage.setItem('g3_chats', JSON.stringify(state.chats));
+                } catch (e) {}
             }
-        }, 30000);
+        }, 15000);
 
         // Online/offline durumu
         window.addEventListener('online', () => {
             showToast('İnternet bağlantısı geri geldi');
-            saveChats();
+            if (state.chats && state.chats.length > 0) {
+                try {
+                    localStorage.setItem('g3_chats', JSON.stringify(state.chats));
+                } catch (e) {}
+            }
         });
 
         window.addEventListener('offline', () => {
             showToast('İnternet bağlantısı kesildi - Veriler yerel olarak kaydedildi', true);
-            saveChats();
+            if (state.chats && state.chats.length > 0) {
+                try {
+                    localStorage.setItem('g3_chats', JSON.stringify(state.chats));
+                } catch (e) {}
+            }
         });
 
         // PWA - Service Worker Kaydı
