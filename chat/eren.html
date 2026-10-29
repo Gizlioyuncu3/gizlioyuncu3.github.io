@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Basit Sohbet</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        #container {
+            max-width: 600px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+        }
+        #messages {
+            height: 200px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin: 15px 0;
+            background: #fafafa;
+        }
+        input[type="text"] {
+            width: calc(100% - 100px);
+            padding: 10px;
+            margin-right: 5px;
+        }
+        button {
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+
+<div id="container">
+    <h1>Basit Sohbet</h1>
+    <div id="messages"></div>
+    <input type="text" id="username" placeholder="Adınızı yazın" />
+    <input type="text" id="message" placeholder="Mesajınızı yazın" />
+    <button id="sendBtn">Gönder</button>
+</div>
+
+<script>
+    const messagesDiv = document.getElementById('messages');
+    const usernameInput = document.getElementById('username');
+    const messageInput = document.getElementById('message');
+    const sendBtn = document.getElementById('sendBtn');
+
+    // Mesajları tutacak bir dizi
+    let messages = JSON.parse(localStorage.getItem('chatMessages')) || [];
+
+    // Mesajları ekrana yazdırma fonksiyonu
+    function renderMessages() {
+        messagesDiv.innerHTML = '';
+        messages.forEach(msg => {
+            const msgElement = document.createElement('div');
+            msgElement.textContent = `${msg.username}: ${msg.message}`;
+            messagesDiv.appendChild(msgElement);
+        });
+    }
+
+    // Mesajları yerel depolamaya kaydetme
+    function saveMessages() {
+        localStorage.setItem('chatMessages', JSON.stringify(messages));
+    }
+
+    // Buton tıklama olayı
+    sendBtn.addEventListener('click', () => {
+        const username = usernameInput.value.trim();
+        const message = messageInput.value.trim();
+
+        if (username && message) {
+            messages.push({ username, message });
+            saveMessages();
+            renderMessages();
+            // Girdileri temizle
+            usernameInput.value = '';
+            messageInput.value = '';
+        } else {
+            alert('Lütfen isminizi ve mesajınızı girin!');
+        }
+    });
+
+    // Sayfa yüklendiğinde mesajları render et
+    renderMessages();
+</script>
+
+</body>
+</html>
